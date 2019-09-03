@@ -1,0 +1,14 @@
+version: '3.3'
+
+services:
+  encode1: &base
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    command: 'tail -f /dev/null'
+
+  encode2:
+    <<: *base
+
+  media:
+    <<: *base
