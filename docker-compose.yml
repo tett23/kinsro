@@ -5,10 +5,13 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
+    hostname: 'encode1.dev.kinsro.local'
     command: 'tail -f /dev/null'
 
   encode2:
     <<: *base
+    hostname: 'encode2.dev.kinsro.local'
 
   media:
     <<: *base
+    hostname: 'media.dev.kinsro.local'
