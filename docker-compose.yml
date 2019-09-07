@@ -6,12 +6,20 @@ services:
       context: .
       dockerfile: ./Dockerfile
     hostname: 'encode1.dev.kinsro.local'
-    command: 'tail -f /dev/null'
+    command: '/usr/sbin/sshd -D'
+    ports:
+      - '34220:22'
+    stdin_open: true
+    tty: true
 
   encode2:
     <<: *base
     hostname: 'encode2.dev.kinsro.local'
+    ports:
+      - '34221:22'
 
-  media:
+  media1:
     <<: *base
-    hostname: 'media.dev.kinsro.local'
+    hostname: 'media1.dev.kinsro.local'
+    ports:
+      - '34222:22'
