@@ -12,6 +12,10 @@ RUN apt-get install -y \
     curl
 RUN apt-get install -y \
     openssh-server 
+RUN apt-get install -y \
+    python3
+
+RUN ln -nsf /usr/bin/python3 /usr/bin/python
 
 RUN mkdir /var/run/sshd
 RUN echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config

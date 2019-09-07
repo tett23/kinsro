@@ -1,0 +1,14 @@
+Host encode1
+  HostName 127.0.0.1
+  Port 34220
+  User pi 
+
+Host encode2
+  HostName 127.0.0.1
+  Port 34221
+  User pi 
+
+Host media1
+  HostName 127.0.0.1
+  Port 34222
+  User pi 

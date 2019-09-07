@@ -1,0 +1,6 @@
+[encode]
+encode1 ansible_port=34220 ansible_host=127.0.0.1 ansible_user=pi
+encode2 ansible_port=34221 ansible_host=127.0.0.1 ansible_user=pi
+
+[media]
+media1 ansible_port=34222 ansible_host=127.0.0.1 ansible_user=pi
