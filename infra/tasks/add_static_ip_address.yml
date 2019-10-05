@@ -1,0 +1,40 @@
+- hosts: initial_setup
+  remote_user: pi
+  gather_facts: yes
+  vars:
+    eth0_ip_address: '{{ lookup("env", "TARGET_IP") }}'
+    eth0_routers: '10.0.1.1'
+    eth0_dns: '10.0.1.1 8.8.8.8'
+    hostname: '{{ lookup("env", "TARGET_HOST") }}'
+  tasks:
+    - name: 'Add static IP address'
+      blockinfile:
+        dest: /etc/dhcpcd.conf
+        create: no
+        block: |
+          interface eth0
+          static ip_address={{ eth0_ip_address }}
+          static routers={{ eth0_routers }}
+          static domain_name_servers={{ eth0_dns }}
+      become: yes
+
+    - name: Set hostname
+      become: true
+      hostname:
+        name: '{{ hostname }}'
+
+    - name: 'Restart dhcpcd'
+      systemd:
+        name: dhcpcd
+        state: restarted
+      become: yes
+
+    - name: Update hosts
+      lineinfile:
+        path: /etc/hosts
+        line: "127.0.1.1\t{{ hostname }}"
+      become: yes
+
+    - name: 'reboot'
+      reboot:
+      become: yes

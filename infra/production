@@ -1,0 +1,8 @@
+[initial_setup]
+raspberry ansible_host=raspberrypi.local ansible_user=pi
+
+[media]
+media1 ansible_host=10.0.1.110 ansible_user=pi
+
+[encode]
+encode1 ansible_host=10.0.1.100 ansible_user=pi

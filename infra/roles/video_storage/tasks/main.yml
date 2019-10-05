@@ -1,0 +1,17 @@
+- name: 'mkdir'
+  file:
+    owner: pi
+    group: pi
+    recurse: yes
+    path: /media/video1
+    state: directory
+  become: yes
+
+- name: 'mount'
+  mount:
+    name: /media/video1
+    src: '/dev/sda'
+    fstype: xfs
+    opts: 'defaults,users'
+    state: mounted
+  become: yes

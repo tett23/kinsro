@@ -1,0 +1,21 @@
+- name: 'Is exist node'
+  command: which node
+  register: is_exist_node
+  ignore_errors: True
+
+- name: 'Get repository list'
+  command: apt-cache policy
+  register: apt_repository
+  changed_when: False
+
+- name: 'Add deb'
+  command: bash -c "curl -sL https://deb.nodesource.com/setup_{{nodejs_version}} | sudo -E bash -"
+  become: yes
+  when: apt_repository.stdout is not search('deb.nodesource.com/node_' ~ nodejs_version)
+
+- name: 'Install node'
+  apt:
+    name: nodejs
+    update_cache: yes
+  become: yes
+  when: is_exist_node is not success

@@ -1,0 +1,9 @@
+- hosts: all
+  remote_user: pi
+  gather_facts: yes
+  vars:
+    ntp_timezone: Etc/UTC
+  roles:
+    - role: geerlingguy.ntp
+      become: yes
+    - role: git

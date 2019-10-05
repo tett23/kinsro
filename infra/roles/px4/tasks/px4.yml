@@ -1,0 +1,126 @@
+- name: 'lsmod px4_div'
+  shell: 'lsmod | grep -e ^px4_drv'
+  register: lsmod_px4_drv
+  failed_when: lsmod_px4_drv.rc not in [0, 1]
+
+- name: 'Install px4_drv'
+  when: lsmod_px4_drv.rc == 1
+  block:
+    - name: 'Stat official driver'
+      stat:
+        path: '/lib/firmware/it930x-firmware.bin'
+      register: stat_official_driver
+
+    - name: 'Install official driver'
+      when: stat_official_driver.stat.exists == false
+      block:
+        - name: 'Stat PX4 dir'
+          stat:
+            path: '$HOME/px4_drv'
+          register: is_exist_px4_dir
+          ignore_errors: yes
+
+        - name: 'Download source'
+          when: is_exist_px4_dir.stat.exists == false
+          block:
+            - name: 'Download source'
+              unarchive:
+                src: https://github.com/nns779/px4_drv/archive/v{{ px4_drv_version }}.zip
+                dest: '$HOME'
+                remote_src: yes
+
+            - name: 'mv zip content'
+              command: 'mv $HOME/px4_drv-{{ px4_drv_version }} $HOME/px4_drv'
+
+        - name: 'make'
+          command: 'make'
+          args:
+            chdir: $HOME/px4_drv/fwtool
+
+        - name: Download official driver
+          get_url:
+            url: 'http://plex-net.co.jp/plex/pxw3u4/pxw3u4_BDA_ver1x64.zip'
+            dest: $HOME/px4_drv/fwtool/pxw3u4_BDA_ver1x64.zip
+
+        - name: 'Unzip official driver'
+          command: 'unzip -oj pxw3u4_BDA_ver1x64.zip pxw3u4_BDA_ver1x64/PXW3U4.sys'
+          args:
+            chdir: $HOME/px4_drv/fwtool
+            warn: no
+
+        - name: 'fwtool'
+          command: './fwtool PXW3U4.sys it930x-firmware.bin'
+          args:
+            chdir: $HOME/px4_drv/fwtool
+
+        - name: 'Copy driver'
+          copy:
+            src: /home/{{ ansible_user }}/px4_drv/fwtool/it930x-firmware.bin
+            dest: /lib/firmware/
+            remote_src: yes
+          become: yes
+
+    - name: 'Install driver'
+      block:
+        - name: 'apt-get upgrade'
+          apt:
+            only_upgrade: yes
+            upgrade: yes
+          become: yes
+
+        - name: 'apt-get dist-upgrade'
+          apt:
+            only_upgrade: yes
+            upgrade: dist
+          become: yes
+
+        - name: 'Install dependencies'
+          apt:
+            name: '{{ packages }}'
+          vars:
+            packages:
+              - build-essential
+              - dkms
+              - raspberrypi-kernel-headers
+          become: yes
+
+        - name: 'uname -r'
+          command: 'uname -r'
+          register: 'uname_r'
+
+        - name: 'stat kernel modules'
+          stat:
+            path: '/lib/modules/{{ uname_r.stdout }}/build'
+          register: stat_modules
+
+        # - name: 'build kernel modules'
+        #   command: 'm-a prepare'
+        #   become: yes
+        #   when: stat_modules.stat.exists == false
+        # - name: 'build kernel modules'
+        #   command: 'ln -s /usr/src/linux-headers-{{ uname_r.stdout }}/ /lib/modules/{{ uname_r.stdout }}/build'
+        #   become: yes
+        #   when: stat_modules.stat.exists == false
+        # sudo
+
+        - name: 'Copy PX4'
+          command: 'cp -r /home/{{ ansible_user }}/px4_drv /usr/src/px4_drv-{{ px4_drv_version }}'
+          become: yes
+
+        - name: 'dkms status'
+          shell: 'dkms status | grep -e ^px4_drv'
+          register: dkms_px4_drv
+          failed_when: dkms_px4_drv.rc not in [0, 1]
+
+        - name: 'DKMS add'
+          command: 'dkms add px4_drv/{{ px4_drv_version }}'
+          become: yes
+          when: dkms_px4_drv.rc == 0
+
+        - name: 'build'
+          command: 'dkms build px4_drv/{{ px4_drv_version }}'
+          become: yes
+
+        - name: 'Install'
+          command: 'dkms install px4_drv/{{ px4_drv_version }}'
+          become: yes

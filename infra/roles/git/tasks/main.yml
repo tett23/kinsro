@@ -1,0 +1,19 @@
+- name: 'Is exist git'
+  command: which git
+  register: is_exist_git
+  ignore_errors: True
+
+- name: 'Install git'
+  apt:
+    name: git
+    update_cache: yes
+  become: yes
+  when: is_exist_git is not success
+
+- name: 'Add ssh config'
+  blockinfile:
+    dest: $HOME/.ssh/config
+    create: yes
+    block: |
+      Host github.com
+        StrictHostKeyChecking no

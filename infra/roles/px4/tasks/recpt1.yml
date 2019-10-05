@@ -1,0 +1,53 @@
+- name: 'Is exist recpt1'
+  command: which recpt1
+  register: is_exist_recpt1
+  ignore_errors: True
+
+- name: 'Install recpt1'
+  when: is_exist_recpt1 is not success
+  block:
+    - name: 'Install Depenencies'
+      apt:
+        name: '{{ packages }}'
+      vars:
+        packages:
+          - autoconf
+          - automake
+      become: yes
+
+    - name: 'Install recpt1'
+      block:
+        - name: 'Stat recpt1 dir'
+          stat:
+            path: '$HOME/recpt1'
+          register: is_exist_recpt1_dir
+
+        - name: 'Clone repo'
+          command: 'git clone git@github.com:stz2012/recpt1.git ~/recpt1'
+          when: is_exist_recpt1_dir.stat.exists == false
+
+        - name: 'checkout'
+          command: 'git checkout {{recpt1_version}}'
+          args:
+            chdir: $HOME/recpt1
+
+        - name: 'autogen'
+          command: './autogen.sh'
+          args:
+            chdir: $HOME/recpt1/recpt1
+
+        - name: 'configure'
+          command: './configure --enable-b25'
+          args:
+            chdir: $HOME/recpt1/recpt1
+
+        - name: 'make'
+          command: 'make'
+          args:
+            chdir: $HOME/recpt1/recpt1
+
+        - name: 'make install'
+          command: 'make install'
+          args:
+            chdir: /home/{{ ansible_user }}/recpt1/recpt1
+          become: yes

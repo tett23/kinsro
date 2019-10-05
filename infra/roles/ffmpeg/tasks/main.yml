@@ -1,0 +1,11 @@
+- name: 'Is exist ffmpeg'
+  command: which ffmpeg
+  register: is_exist_ffmpeg
+  ignore_errors: yes
+
+- name: 'Install ffmpeg'
+  apt:
+    name: ffmpeg
+    update_cache: yes
+  become: yes
+  when: is_exist_ffmpeg is not success

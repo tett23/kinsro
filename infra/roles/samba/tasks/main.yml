@@ -1,0 +1,19 @@
+- name: 'Install samba'
+  apt:
+    name: '{{ packages }}'
+  vars:
+    packages:
+      - samba
+  become: yes
+
+- name: 'Copy rules.json'
+  copy:
+    src: ./smb.conf
+    dest: /etc/samba/smb.conf
+  become: yes
+
+- name: 'Reload smbd'
+  systemd:
+    name: smbd
+    state: reloaded
+  become: yes

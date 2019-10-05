@@ -1,0 +1,13 @@
+- hosts: all
+  vars:
+    version: '{{ lookup("env", "VERSION") }}'
+  tasks:
+    - name: rpi-update
+      become: true
+      command: 'rpi-update {{ version }}'
+      environment:
+        SKIP_WARNING: 1
+
+    - name: 'reboot'
+      reboot:
+      become: yes

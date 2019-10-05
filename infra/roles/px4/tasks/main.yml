@@ -1,0 +1,6 @@
+- name: include tasks
+  include_tasks: '{{item}}.yml'
+  with_items:
+    - px4
+    - pcsc
+    - recpt1

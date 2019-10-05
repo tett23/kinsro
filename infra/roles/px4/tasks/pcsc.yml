@@ -1,0 +1,49 @@
+- name: 'Install PCSC'
+  apt:
+    name: '{{ packages }}'
+  vars:
+    packages:
+      - cmake
+      - libpcsclite1
+      - libpcsclite-dev
+      - pcscd
+      - pcsc-tools
+  become: yes
+
+- name: 'Stat libarib25.so'
+  stat:
+    path: '/usr/local/lib/libarib25.so'
+  register: is_exist_libarib25
+
+- name: 'Install libarib25'
+  when: is_exist_libarib25.stat.exists == false
+  block:
+    - name: 'Stat libarib25 dir'
+      stat:
+        path: '$HOME/libarib25'
+      register: is_exist_libarib25_dir
+
+    - name: 'Clone repo'
+      command: 'git clone git@github.com:stz2012/libarib25.git ~/libarib25'
+      when: is_exist_libarib25_dir.stat.exists == false
+
+    - name: 'checkout'
+      command: 'git checkout {{libarib25_version}}'
+      args:
+        chdir: $HOME/libarib25
+
+    - name: 'cmake'
+      command: 'cmake .'
+      args:
+        chdir: $HOME/libarib25
+
+    - name: 'make'
+      command: 'make'
+      args:
+        chdir: $HOME/libarib25
+
+    - name: 'make install'
+      command: 'make install'
+      args:
+        chdir: /home/{{ ansible_user }}/libarib25
+      become: yes

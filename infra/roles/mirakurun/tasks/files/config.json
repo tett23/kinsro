@@ -1,0 +1,35 @@
+{
+  "uid": "pi",
+  "gid": "pi",
+  "mirakurunPath": "http+unix://%2Fvar%2Frun%2Fmirakurun.sock/",
+
+  "recordedDir": "./recorded/",
+
+  "vaapiEnabled": false,
+  "vaapiDevice": "/dev/dri/renderD128",
+
+  "excludeServices": [],
+
+  "serviceOrder": [3273601024, 3273601025, 3273701032, 3273701033, 3273701034],
+
+  "wuiUsers": ["chinachu:yoshikawa"],
+  "wuiAllowCountries": ["JP"],
+
+  "wuiPort": null,
+  "wuiHost": "0.0.0.0",
+  "wuiTlsKeyPath": null,
+  "wuiTlsCertPath": null,
+  "wuiTlsRequestCert": false,
+  "wuiTlsRejectUnauthorized": true,
+  "wuiTlsCaPath": null,
+  "wuiOpenServer": true,
+  "wuiOpenPort": 20772,
+  "wuiXFF": false,
+  "wuiMdnsAdvertisement": true,
+
+  "recordedFormat": "[<date:yymmdd-HHMM>][<type><channel>][<channel-name>]<title>.m2ts",
+  "storageLowSpaceThresholdMB": 3000,
+  "storageLowSpaceAction": "remove",
+  "storageLowSpaceNotifyTo": null,
+  "storageLowSpaceCommand": ""
+}
