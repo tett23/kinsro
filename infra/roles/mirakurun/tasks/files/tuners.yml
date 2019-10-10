@@ -41,7 +41,6 @@
     - BS
     - CS
   command: recpt1 --device /dev/px4video0 --lnb 15 --b25 <channel> - -
-  decoder: arib-b25-stream-test
   isDisabled: false
 
 - name: PX4-S2
@@ -49,19 +48,16 @@
     - BS
     - CS
   command: recpt1 --device /dev/px4video1 --lnb 15 --b25 <channel> - -
-  decoder: arib-b25-stream-test
   isDisabled: false
 
 - name: PX4-T1
   types:
     - GR
   command: recpt1 --device /dev/px4video2 --b25 <channel> - -
-  decoder: arib-b25-stream-test
   isDisabled: false
 
 - name: PX4-T2
   types:
     - GR
   command: recpt1 --device /dev/px4video3 --b25 <channel> - -
-  decoder: arib-b25-stream-test
   isDisabled: false
