@@ -59,7 +59,7 @@
   "wuiXFF": false,
   "wuiMdnsAdvertisement": true,
 
-  "recordedFormat": "[<date:yymmdd-HHMM>][<type><channel>][<channel-name>]<title>.m2ts",
+  "recordedFormat": "<date:yymmddHHMM>_<fulltitle>.ts",
   "storageLowSpaceThresholdMB": 3000,
   "storageLowSpaceAction": "remove",
   "storageLowSpaceNotifyTo": null,
