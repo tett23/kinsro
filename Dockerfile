@@ -13,7 +13,8 @@ RUN apt-get install -y \
 RUN apt-get install -y \
     openssh-server 
 RUN apt-get install -y \
-    python3
+    python3 \
+    python3-apt
 
 RUN ln -nsf /usr/bin/python3 /usr/bin/python
 
