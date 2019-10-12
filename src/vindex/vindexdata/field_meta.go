@@ -12,7 +12,7 @@ type nameLengthPair struct {
 }
 
 func structFields() []nameLengthPair {
-	s := BinaryIndexItem{}
+	s := VIndexItem{}
 	reflType := reflect.TypeOf(s)
 	lenFields := reflType.NumField()
 	ret := make([]nameLengthPair, lenFields)

@@ -12,8 +12,8 @@ type VIndexItem struct {
 	Date     uint64 `bi_length:"8" bi_type:"uint"`
 }
 
-// NewBinaryIndexItem NewBinaryIndexItem
-func NewBinaryIndexItem(filename string, date uint64) VIndexItem {
+// NewVIndexItem NewVIndexItem
+func NewVIndexItem(filename string, date uint64) VIndexItem {
 	return VIndexItem{
 		Filename: filename,
 		Date:     date,
@@ -48,14 +48,14 @@ func (item VIndexItem) ToBinary() []byte {
 				data[i] = tmp[i]
 			}
 		case "uint":
-			tmp := uint2bytes(item.Date, 8)
+			tmp := uint2bytes(value.Uint(), 8)
 			for i := range tmp {
 				data[i] = tmp[i]
 			}
 		}
 
 		for i := range data {
-			ret[i+int(offset)] = data[i]
+			ret[i+offset] = data[i]
 		}
 
 		offset += colLen
@@ -69,8 +69,8 @@ func NewBinaryIndexItemFromBinary(data []byte) (VIndexItem, error) {
 	ret := VIndexItem{}
 	pairs := structFields()
 	totalLen := rowLength(pairs)
-	if len(pairs) > totalLen {
-		return ret, errors.Errorf("Invalid data")
+	if len(data) != totalLen {
+		return ret, errors.Errorf("Invalid data. len(data)=%v totalLen=%v", len(data), totalLen)
 	}
 
 	rawValue := reflect.ValueOf(&ret).Elem()
@@ -84,15 +84,16 @@ func NewBinaryIndexItemFromBinary(data []byte) (VIndexItem, error) {
 
 		switch pair.Type {
 		case "string":
-			eolIndex := 0
-			for eolIndex = range colRawBytes {
-				if colRawBytes[eolIndex] == '\000' {
+			value := make([]byte, 0, len(colRawBytes))
+			for i := range colRawBytes {
+				if colRawBytes[i] == '\000' {
 					break
 				}
+
+				value = append(value, colRawBytes[i])
 			}
 
-			value := string(colRawBytes[:eolIndex])
-			rawValue.FieldByName(pair.Name).SetString(value)
+			rawValue.FieldByName(pair.Name).SetString(string(value))
 		case "uint":
 			value := bytes2uint(colRawBytes...)
 			rawValue.FieldByName(pair.Name).SetUint(value)
