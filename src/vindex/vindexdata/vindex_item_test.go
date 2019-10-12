@@ -7,7 +7,7 @@ import (
 )
 
 func TestVIndexItemToBinaryAndNewVIndexItemFromBinary(t *testing.T) {
-	item := NewVIndexItem("ああ鰍", uint64(20200101))
+	item := NewVIndexItem("video1", uint64(20200101), "test.ts")
 	bin := item.ToBinary()
 	restore, err := NewBinaryIndexItemFromBinary(bin)
 	if err != nil {

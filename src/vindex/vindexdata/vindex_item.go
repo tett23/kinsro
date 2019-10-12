@@ -10,11 +10,13 @@ import (
 type VIndexItem struct {
 	Filename string `bi_length:"100" bi_type:"string"`
 	Date     uint64 `bi_length:"8" bi_type:"uint"`
+	Storage  string `bi_length:"100" bi_type:"string"`
 }
 
 // NewVIndexItem NewVIndexItem
-func NewVIndexItem(filename string, date uint64) VIndexItem {
+func NewVIndexItem(storage string, date uint64, filename string) VIndexItem {
 	return VIndexItem{
+		Storage:  storage,
 		Filename: filename,
 		Date:     date,
 	}

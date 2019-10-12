@@ -8,8 +8,8 @@ import (
 
 func TestVIndexToBinaryAndNewIndexFromBinary(t *testing.T) {
 	vindex := VIndex{
-		NewVIndexItem("foo", uint64(20200101)),
-		NewVIndexItem("foo", uint64(20200101)),
+		NewVIndexItem("video1", uint64(20200101), "test1.ts"),
+		NewVIndexItem("video1", uint64(20200102), "test2.ts"),
 	}
 	//
 	bin, err := vindex.ToBinary()
