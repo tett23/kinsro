@@ -8,7 +8,7 @@ import (
 
 // VIndexItem VIndexItem
 type VIndexItem struct {
-	Filename string `bi_length:"100" bi_type:"string"`
+	Filename string `bi_length:"10000" bi_type:"string"`
 	Date     uint64 `bi_length:"8" bi_type:"uint"`
 	Storage  string `bi_length:"100" bi_type:"string"`
 }
