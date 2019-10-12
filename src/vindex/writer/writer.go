@@ -2,7 +2,10 @@ package writer
 
 import (
 	"os"
+	"strconv"
+	"time"
 
+	"github.com/pkg/errors"
 	"github.com/tett23/kinsro/src/config"
 	"github.com/tett23/kinsro/src/filesystem"
 	"github.com/tett23/kinsro/src/vindex/vindexdata"
@@ -10,7 +13,7 @@ import (
 
 type command struct {
 	callbackCh chan bool
-	item       vindexdata.BinaryIndexItem
+	item       vindexdata.VIndexItem
 }
 
 var ch chan command
@@ -22,7 +25,7 @@ func init() {
 }
 
 // Append Append
-func Append(item vindexdata.BinaryIndexItem) chan bool {
+func Append(item vindexdata.VIndexItem) chan bool {
 	callbackCh := make(chan bool)
 	data := command{callbackCh: callbackCh, item: item}
 	ch <- data
@@ -35,45 +38,81 @@ func lockFilePath(indexPath string) string {
 }
 
 func processor() {
-	config := config.GetConfig()
-	fs := filesystem.GetFs()
-
 	for {
 		command := <-ch
 
-		// なんかロック関連の処理する
-		stat, err := fs.Stat(lockFilePath(config.VIndexPath))
+		ok, err := isLocked()
 		if err != nil {
-			// command.callbackCh <- false
-			// panic(err)
+			panic(errors.Wrap(err, "lock error"))
+		}
+		if ok {
+			command.callbackCh <- <-Append(command.item)
+			continue
 		}
 
-		file, err := fs.OpenFile(config.VIndexPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644)
+		ok, err = appendRecord(command.item)
 		if err != nil {
+			panic(errors.Wrap(err, "append error"))
+		}
+		if !ok {
 			command.callbackCh <- false
-			panic(err)
-		}
-
-		stat, err = file.Stat()
-		if err != nil {
-			command.callbackCh <- false
-			panic(err)
-		}
-
-		var offset int64
-		if stat.Size() == 0 {
-			offset = 0
-		} else {
-			offset = stat.Size()
-		}
-
-		bytes := []byte(command.item.Filename)
-		_, err = file.WriteAt(bytes, offset)
-		if err != nil {
-			command.callbackCh <- false
-			panic(err)
+			continue
 		}
 
 		command.callbackCh <- true
 	}
+}
+
+func isLocked() (bool, error) {
+	config := config.GetConfig()
+	fs := filesystem.GetFs()
+
+	stat, err := fs.Stat(lockFilePath(config.VIndexPath))
+	if err == nil {
+		return false, nil
+	}
+	if stat == nil {
+		return false, nil
+	}
+
+	if stat.IsDir() {
+		return false, errors.New("stat type error")
+	}
+
+	lockFile, err := fs.OpenFile(lockFilePath(config.VIndexPath), os.O_RDONLY, 0644)
+	if err != nil {
+		return true, err
+	}
+
+	var timestampBytes []byte
+	_, err = lockFile.Read(timestampBytes)
+	if err != nil {
+		return true, err
+	}
+
+	timestampStr := string(timestampBytes)
+	timestamp, err := strconv.Atoi(timestampStr)
+	if err != nil {
+		return true, err
+	}
+
+	now := time.Now().Unix()
+
+	return !(int64(timestamp) < now), nil
+}
+
+func appendRecord(vindexItem vindexdata.VIndexItem) (bool, error) {
+	config := config.GetConfig()
+	fs := filesystem.GetFs()
+
+	file, err := fs.OpenFile(config.VIndexPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644)
+	if err != nil {
+		return false, err
+	}
+
+	if _, err = file.Write(vindexItem.ToBinary()); err != nil {
+		return false, err
+	}
+
+	return true, nil
 }

@@ -3,6 +3,7 @@ package writer
 import (
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/tett23/kinsro/src/vindex/reader"
 
 	"github.com/tett23/kinsro/src/vindex/vindexdata"
@@ -10,12 +11,12 @@ import (
 )
 
 func TestAppend(t *testing.T) {
-	item := vindexdata.NewBinaryIndex("foo")
-
-	ch := writer.Append(item)
+	item1 := vindexdata.NewVIndexItem("video1", 20190101, "test1.ts")
+	ch := writer.Append(item1)
 	<-ch
 
-	ch = writer.Append(vindexdata.NewBinaryIndex("a"))
+	item2 := vindexdata.NewVIndexItem("video1", 20190101, "test2.ts")
+	ch = writer.Append(item2)
 	<-ch
 
 	ret, err := reader.ReadAll()
@@ -23,5 +24,7 @@ func TestAppend(t *testing.T) {
 		t.Error(err)
 	}
 
-	t.Log(ret)
+	if diff := cmp.Diff(vindexdata.VIndex{item1, item2}, ret); diff != "" {
+		t.Error(diff)
+	}
 }

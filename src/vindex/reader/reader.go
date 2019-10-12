@@ -1,28 +1,31 @@
 package reader
 
 import (
-	"fmt"
-
 	"github.com/spf13/afero"
 	"github.com/tett23/kinsro/src/config"
 	"github.com/tett23/kinsro/src/filesystem"
+	"github.com/tett23/kinsro/src/vindex/vindexdata"
 )
 
 // ReadAll ReadAll
-func ReadAll() (string, error) {
+func ReadAll() (vindexdata.VIndex, error) {
 	config := config.GetConfig()
 	fs := filesystem.GetFs()
 
 	_, err := fs.Stat(config.VIndexPath)
 	if err != nil {
-		return "", err
+		return vindexdata.VIndex{}, err
 	}
 
 	bytes, err := afero.ReadFile(fs, config.VIndexPath)
 	if err != nil {
-		return "", err
+		return vindexdata.VIndex{}, err
 	}
-	fmt.Println(string(bytes))
 
-	return string(bytes), nil
+	vindex, err := vindexdata.NewVIndexFromBinary(bytes)
+	if err != nil {
+		return vindexdata.VIndex{}, err
+	}
+
+	return vindex, nil
 }
