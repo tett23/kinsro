@@ -1,6 +1,7 @@
 package vindexdata
 
 import (
+	"crypto/md5"
 	"reflect"
 
 	"github.com/pkg/errors"
@@ -8,9 +9,10 @@ import (
 
 // VIndexItem VIndexItem
 type VIndexItem struct {
-	Filename string `bi_length:"10000" bi_type:"string"`
-	Date     uint64 `bi_length:"8" bi_type:"uint"`
-	Storage  string `bi_length:"100" bi_type:"string"`
+	Filename string   `bi_length:"10000" bi_type:"string"`
+	Date     uint64   `bi_length:"8" bi_type:"uint"`
+	Storage  string   `bi_length:"100" bi_type:"string"`
+	Digest   [16]byte `bi_length:"16" bi_type:"digest"`
 }
 
 // NewVIndexItem NewVIndexItem
@@ -19,6 +21,7 @@ func NewVIndexItem(storage string, date uint64, filename string) VIndexItem {
 		Storage:  storage,
 		Filename: filename,
 		Date:     date,
+		Digest:   md5.Sum([]byte(filename)),
 	}
 }
 
@@ -53,6 +56,10 @@ func (item VIndexItem) ToBinary() []byte {
 			tmp := uint2bytes(value.Uint(), 8)
 			for i := range tmp {
 				data[i] = tmp[i]
+			}
+		case "digest":
+			for i := 0; i < pair.Length; i++ {
+				data[i] = byte(value.Index(i).Uint())
 			}
 		}
 
@@ -99,6 +106,12 @@ func NewBinaryIndexItemFromBinary(data []byte) (*VIndexItem, error) {
 		case "uint":
 			value := bytes2uint(colRawBytes...)
 			rawValue.FieldByName(pair.Name).SetUint(value)
+		case "digest":
+			for i := range colRawBytes {
+				rawValue.FieldByName(pair.Name).Index(i).SetUint(uint64(colRawBytes[i]))
+			}
+			// rawValue.FieldByName(pair.Name).SetBytes(colRawBytes)
+			// rawValue.FieldByName(pair.Name).data = colRowBytes
 		}
 
 		offset += pair.Length

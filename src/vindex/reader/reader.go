@@ -1,8 +1,8 @@
 package reader
 
 import (
+	"crypto/md5"
 	"os"
-	"path/filepath"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
@@ -48,7 +48,7 @@ func FindByFilename(conf *config.Config, filename string) (*vindexdata.VIndexIte
 		return nil, errors.Wrap(err, "Stat failed")
 	}
 
-	base := filepath.Base(filename)
+	digest := md5.Sum([]byte(filename))
 	rowLen := vindexdata.RowLength()
 	data := make([]byte, rowLen)
 	fileSize := stat.Size()
@@ -64,7 +64,7 @@ func FindByFilename(conf *config.Config, filename string) (*vindexdata.VIndexIte
 			return nil, errors.Wrap(err, "NewBinaryIndexItemFromBinary failed")
 		}
 
-		if filepath.Base(vindexItem.Filename) == base {
+		if vindexItem.Digest == digest {
 			return vindexItem, nil
 		}
 	}
