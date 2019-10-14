@@ -1,15 +1,21 @@
 # kinsro
 
-## Installation
+## Build
 
 ```
-$ brew install http://git.io/sshpass.rb
-$ cp ~/.ssh/id_rsa.pub authorized_keys
+$ make build
+```
+
+## Test
+
+```
+$ make test
 ```
 
 ## Setup Raspberry Pi
 
 ```
+$ cp ~/.ssh/id_rsa.pub authorized_keys
 $ sh ./scripts/setup_raspberry_pi.sh
 $ cd ./infra
 $ TARGET_IP={ip address} TARGET_HOST={(encode|media)N.kinsro.local} ansible-playbook -i production --limit initial_setup tasks/add_static_ip_address.yml
