@@ -14,11 +14,7 @@ func TestParseFilepath1(t *testing.T) {
 		t.Error(err)
 	}
 
-	expected := VIndexItem{
-		Storage:  "test",
-		Date:     20191010,
-		Filename: "/test/2019/10/10/test.mp4",
-	}
+	expected := NewVIndexItem("test", 20191010, "/test/2019/10/10/test.mp4")
 	if diff := cmp.Diff(actual, &expected); diff != "" {
 		t.Errorf(diff)
 	}

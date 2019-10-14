@@ -39,7 +39,8 @@ func CreateNewIndexFile(conf *config.Config, vindex vindexdata.VIndex) error {
 	indexPath := conf.VIndexPath
 	fs := filesystem.GetFs()
 
-	file, err := fs.OpenFile(indexPath, os.O_RDWR|os.O_CREATE, 0644)
+	fs.Remove(indexPath)
+	file, err := fs.OpenFile(indexPath, os.O_WRONLY|os.O_CREATE, 0644)
 	if err != nil {
 		return errors.Wrapf(err, "fs.OpenFile failed. path=%v", indexPath)
 	}

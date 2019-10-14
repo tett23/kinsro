@@ -2,14 +2,16 @@ package vindexdata
 
 import (
 	"crypto/md5"
+	"fmt"
 	"reflect"
 
 	"github.com/pkg/errors"
+	"golang.org/x/text/unicode/norm"
 )
 
 // VIndexItem VIndexItem
 type VIndexItem struct {
-	Filename string   `bi_length:"10000" bi_type:"string"`
+	Filename string   `bi_length:"2000" bi_type:"string"`
 	Date     uint64   `bi_length:"8" bi_type:"uint"`
 	Storage  string   `bi_length:"100" bi_type:"string"`
 	Digest   [16]byte `bi_length:"16" bi_type:"digest"`
@@ -17,12 +19,19 @@ type VIndexItem struct {
 
 // NewVIndexItem NewVIndexItem
 func NewVIndexItem(storage string, date uint64, filename string) VIndexItem {
+	normalized := norm.NFC.String(filename)
+
 	return VIndexItem{
 		Storage:  storage,
-		Filename: filename,
+		Filename: normalized,
 		Date:     date,
-		Digest:   md5.Sum([]byte(filename)),
+		Digest:   md5.Sum([]byte(normalized)),
 	}
+}
+
+// HexDigest HexDigest
+func (item VIndexItem) HexDigest() string {
+	return fmt.Sprintf("%x", item.Digest)
 }
 
 // ToBinary ToBinary

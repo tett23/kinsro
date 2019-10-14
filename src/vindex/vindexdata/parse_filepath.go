@@ -27,11 +27,8 @@ func ParseFilepath(storagePaths []string, path string) (*VIndexItem, error) {
 		return nil, errors.Wrapf(err, "toDate failed. path=%+v", path)
 	}
 
-	return &VIndexItem{
-		Storage:  filepath.Base(storagePath),
-		Filename: path,
-		Date:     date,
-	}, nil
+	ret := NewVIndexItem(filepath.Base(storagePath), date, path)
+	return &ret, nil
 }
 
 func toDate(base, path string) (uint64, error) {

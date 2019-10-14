@@ -62,7 +62,7 @@ func ls(conf *config.Config, flagSet *flag.FlagSet) error {
 
 	for i := range vindex {
 		item := vindex[i]
-		fmt.Printf("%v\t%v\t%v\n", item.Storage, item.Date, filepath.Base(item.Filename))
+		fmt.Printf("%v %v %v %v\n", item.HexDigest(), item.Storage, item.Date, filepath.Base(item.Filename))
 	}
 
 	return nil
