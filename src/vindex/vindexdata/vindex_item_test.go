@@ -14,7 +14,7 @@ func TestVIndexItemToBinaryAndNewVIndexItemFromBinary(t *testing.T) {
 		t.Error(err)
 	}
 
-	if diff := cmp.Diff(item, restore); diff != "" {
+	if diff := cmp.Diff(item, *restore); diff != "" {
 		t.Errorf(diff)
 	}
 }

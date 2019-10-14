@@ -6,8 +6,10 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/pkg/errors"
 	"github.com/tett23/kinsro/src/commands"
 	"github.com/tett23/kinsro/src/config"
+	"github.com/tett23/kinsro/src/vindex/vindexdata"
 	"github.com/tett23/kinsro/src/vindex/writer"
 )
 
@@ -17,24 +19,26 @@ func main() {
 	command := os.Args[1]
 	flagSet.Parse(os.Args[2:])
 
-	var commandFunc func(conf *config.Config) error
+	var commandFunc func(conf *config.Config, flagSet *flag.FlagSet) error
 	switch command {
 	case "build":
 		commandFunc = build
 	case "ls":
 		commandFunc = ls
+	case "append":
+		commandFunc = append
 	default:
 		panic(fmt.Sprintf("Unexpected command. command=%v", command))
 	}
 
-	err := commandFunc(config.GetConfig())
+	err := commandFunc(config.GetConfig(), flagSet)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		panic(err)
 	}
 }
 
-func build(conf *config.Config) error {
+func build(conf *config.Config, flagSet *flag.FlagSet) error {
 	storagePaths := conf.StoragePaths
 
 	vindex, err := commands.BuildVIndex(storagePaths)
@@ -50,7 +54,7 @@ func build(conf *config.Config) error {
 	return nil
 }
 
-func ls(conf *config.Config) error {
+func ls(conf *config.Config, flagSet *flag.FlagSet) error {
 	vindex, err := commands.ListIndex(conf.VIndexPath)
 	if err != nil {
 		return err
@@ -59,6 +63,26 @@ func ls(conf *config.Config) error {
 	for i := range vindex {
 		item := vindex[i]
 		fmt.Printf("%v\t%v\t%v\n", item.Storage, item.Date, filepath.Base(item.Filename))
+	}
+
+	return nil
+}
+
+func append(conf *config.Config, flagSet *flag.FlagSet) error {
+	args := flagSet.Args()
+	path := args[0]
+	if path == "" {
+		return errors.Errorf("Invalid filename")
+	}
+
+	vindexItem, err := vindexdata.ParseFilepath(conf.StoragePaths, path)
+	if err != nil {
+		return errors.Errorf("ParseFilepath failed. path=%v", path)
+	}
+
+	err = commands.Append(conf, vindexItem)
+	if err != nil {
+		return err
 	}
 
 	return nil

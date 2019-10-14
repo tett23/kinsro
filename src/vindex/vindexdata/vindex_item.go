@@ -67,12 +67,12 @@ func (item VIndexItem) ToBinary() []byte {
 }
 
 // NewBinaryIndexItemFromBinary NewBinaryIndexItemFromBinary
-func NewBinaryIndexItemFromBinary(data []byte) (VIndexItem, error) {
+func NewBinaryIndexItemFromBinary(data []byte) (*VIndexItem, error) {
 	ret := VIndexItem{}
 	pairs := structFields()
-	totalLen := rowLength(pairs)
+	totalLen := int(rowLength(pairs))
 	if len(data) != totalLen {
-		return ret, errors.Errorf("Invalid data. len(data)=%v totalLen=%v", len(data), totalLen)
+		return nil, errors.Errorf("Invalid data. len(data)=%v totalLen=%v", len(data), totalLen)
 	}
 
 	rawValue := reflect.ValueOf(&ret).Elem()
@@ -104,5 +104,5 @@ func NewBinaryIndexItemFromBinary(data []byte) (VIndexItem, error) {
 		offset += pair.Length
 	}
 
-	return ret, nil
+	return &ret, nil
 }

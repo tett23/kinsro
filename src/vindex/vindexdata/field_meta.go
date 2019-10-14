@@ -35,11 +35,16 @@ func structFields() []nameLengthPair {
 	return ret
 }
 
-func rowLength(pairs []nameLengthPair) int {
+func rowLength(pairs []nameLengthPair) int64 {
 	var ret int
 	for i := range pairs {
 		ret += pairs[i].Length
 	}
 
-	return ret
+	return int64(ret)
+}
+
+// RowLength RowLength
+func RowLength() int64 {
+	return rowLength(structFields())
 }

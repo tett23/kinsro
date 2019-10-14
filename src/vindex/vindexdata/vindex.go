@@ -8,7 +8,7 @@ type VIndex []VIndexItem
 // ToBinary ToBinary
 func (vindex VIndex) ToBinary() ([]byte, error) {
 	pairs := structFields()
-	totalRowLen := rowLength(pairs)
+	totalRowLen := int(rowLength(pairs))
 	ret := make([]byte, totalRowLen*len(vindex))
 
 	for i := range vindex {
@@ -26,7 +26,7 @@ func (vindex VIndex) ToBinary() ([]byte, error) {
 // NewVIndexFromBinary NewVIndexFromBinary
 func NewVIndexFromBinary(data []byte) (VIndex, error) {
 	pairs := structFields()
-	totalRowLen := rowLength(pairs)
+	totalRowLen := int(rowLength(pairs))
 	if len(data)%totalRowLen != 0 {
 		return nil, errors.Errorf("Invalid binary")
 	}
@@ -41,7 +41,7 @@ func NewVIndexFromBinary(data []byte) (VIndex, error) {
 			return ret, err
 		}
 
-		ret[i] = vindexItem
+		ret[i] = *vindexItem
 	}
 
 	return ret, nil
