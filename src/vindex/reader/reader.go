@@ -21,7 +21,7 @@ func ReadAll() (vindexdata.VIndex, error) {
 	if err != nil {
 		return vindexdata.VIndex{}, err
 	}
-
+	//
 	vindex, err := vindexdata.NewVIndexFromBinary(bytes)
 	if err != nil {
 		return vindexdata.VIndex{}, err

@@ -33,6 +33,32 @@ func Append(item vindexdata.VIndexItem) chan bool {
 	return callbackCh
 }
 
+// CreateNewIndexFile CreateNewIndexFile
+func CreateNewIndexFile(conf *config.Config, vindex vindexdata.VIndex) error {
+	indexPath := conf.VIndexPath
+	fs := filesystem.GetFs()
+
+	file, err := fs.OpenFile(indexPath, os.O_RDWR|os.O_CREATE, 0644)
+	if err != nil {
+		return errors.Wrapf(err, "fs.OpenFile failed. path=%v", indexPath)
+	}
+	defer func() {
+		file.Close()
+	}()
+
+	bin, err := vindex.ToBinary()
+	if err != nil {
+		return errors.Wrapf(err, "vindex.ToBinary failed")
+	}
+
+	_, err = file.Write(bin)
+	if err != nil {
+		return errors.Wrapf(err, "file.Write failed")
+	}
+
+	return nil
+}
+
 func lockFilePath(indexPath string) string {
 	return indexPath + ".lock"
 }
@@ -64,10 +90,10 @@ func processor() {
 }
 
 func isLocked() (bool, error) {
-	config := config.GetConfig()
+	conf := config.GetConfig()
 	fs := filesystem.GetFs()
 
-	stat, err := fs.Stat(lockFilePath(config.VIndexPath))
+	stat, err := fs.Stat(lockFilePath(conf.VIndexPath))
 	if err == nil {
 		return false, nil
 	}
@@ -79,7 +105,7 @@ func isLocked() (bool, error) {
 		return false, errors.New("stat type error")
 	}
 
-	lockFile, err := fs.OpenFile(lockFilePath(config.VIndexPath), os.O_RDONLY, 0644)
+	lockFile, err := fs.OpenFile(lockFilePath(conf.VIndexPath), os.O_RDONLY, 0644)
 	if err != nil {
 		return true, err
 	}
