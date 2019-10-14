@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/tett23/kinsro/src/commands"
 	"github.com/tett23/kinsro/src/config"
@@ -16,15 +17,17 @@ func main() {
 	command := os.Args[1]
 	flagSet.Parse(os.Args[2:])
 
-	var f func(conf *config.Config) error
+	var commandFunc func(conf *config.Config) error
 	switch command {
 	case "build":
-		f = build
+		commandFunc = build
+	case "ls":
+		commandFunc = ls
 	default:
 		panic(fmt.Sprintf("Unexpected command. command=%v", command))
 	}
 
-	err := f(config.GetConfig())
+	err := commandFunc(config.GetConfig())
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		panic(err)
@@ -42,6 +45,20 @@ func build(conf *config.Config) error {
 	err = writer.CreateNewIndexFile(conf, vindex)
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func ls(conf *config.Config) error {
+	vindex, err := commands.ListIndex(conf.VIndexPath)
+	if err != nil {
+		return err
+	}
+
+	for i := range vindex {
+		item := vindex[i]
+		fmt.Printf("%v\t%v\t%v\n", item.Storage, item.Date, filepath.Base(item.Filename))
 	}
 
 	return nil
