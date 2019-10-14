@@ -3,8 +3,6 @@ package commands
 import (
 	"path/filepath"
 	"regexp"
-	"strconv"
-	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/tett23/kinsro/src/filesystem"
@@ -39,40 +37,17 @@ func BuildVIndex(storagePaths []string) (vindexdata.VIndex, error) {
 			}
 
 			for i := range items {
-				videoPath := items[i]
-				date, err := toDate(videoPath)
+				vindexItem, err := vindexdata.ParseFilepath([]string{path}, items[i])
 				if err != nil {
-					return nil, errors.Wrapf(err, "toDate failed. videoPath=%+v", videoPath)
+					return nil, errors.Wrapf(err, "ParseFilepath failed. videoPath=%+v", items[i])
 				}
 
-				ret = append(ret, vindexdata.VIndexItem{
-					Storage:  filepath.Base(path),
-					Filename: videoPath,
-					Date:     date,
-				})
+				ret = append(ret, *vindexItem)
 			}
 		}
 	}
 
 	return ret, nil
-}
-
-func toDate(path string) (uint64, error) {
-	pathItems := strings.Split(path, "/")
-	year, err := strconv.Atoi(pathItems[3])
-	if err != nil {
-		return 0, errors.Wrapf(err, "strconv.Atoi failed. value=%v", pathItems[3])
-	}
-	month, err := strconv.Atoi(pathItems[4])
-	if err != nil {
-		return 0, errors.Wrapf(err, "strconv.Atoi failed. value=%v", pathItems[4])
-	}
-	day, err := strconv.Atoi(pathItems[5])
-	if err != nil {
-		return 0, errors.Wrapf(err, "strconv.Atoi failed. value=%v", pathItems[5])
-	}
-
-	return uint64(year*10000 + month*100 + day), nil
 }
 
 func pathRecursivly(path string) ([]string, error) {

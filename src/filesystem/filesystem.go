@@ -1,22 +1,31 @@
 package filesystem
 
 import (
+	"os"
+
 	"github.com/spf13/afero"
-	"github.com/tett23/kinsro/src/config"
 )
 
 var fs afero.Fs
+var rawFs afero.Fs
 
 func init() {
-	config := config.GetConfig()
-	if config.Environment == "test" {
+	goEnv := os.Getenv("GO_ENV")
+	if goEnv == "test" {
 		fs = afero.NewMemMapFs()
+		rawFs = afero.NewOsFs()
 	} else {
 		fs = afero.NewOsFs()
+		rawFs = fs
 	}
 }
 
 // GetFs GetFs
 func GetFs() afero.Fs {
 	return fs
+}
+
+// GetRawFs GetRawFs
+func GetRawFs() afero.Fs {
+	return rawFs
 }

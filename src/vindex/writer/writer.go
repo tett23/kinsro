@@ -13,7 +13,8 @@ import (
 
 type command struct {
 	callbackCh chan bool
-	item       vindexdata.VIndexItem
+	item       *vindexdata.VIndexItem
+	config     *config.Config
 }
 
 var ch chan command
@@ -25,9 +26,9 @@ func init() {
 }
 
 // Append Append
-func Append(item vindexdata.VIndexItem) chan bool {
+func Append(conf *config.Config, item *vindexdata.VIndexItem) chan bool {
 	callbackCh := make(chan bool)
-	data := command{callbackCh: callbackCh, item: item}
+	data := command{callbackCh: callbackCh, item: item, config: conf}
 	ch <- data
 
 	return callbackCh
@@ -67,16 +68,16 @@ func processor() {
 	for {
 		command := <-ch
 
-		ok, err := isLocked()
+		ok, err := isLocked(command.config.VIndexPath)
 		if err != nil {
 			panic(errors.Wrap(err, "lock error"))
 		}
 		if ok {
-			command.callbackCh <- <-Append(command.item)
+			command.callbackCh <- <-Append(command.config, command.item)
 			continue
 		}
 
-		ok, err = appendRecord(command.item)
+		ok, err = appendRecord(command.config, command.item)
 		if err != nil {
 			panic(errors.Wrap(err, "append error"))
 		}
@@ -89,11 +90,10 @@ func processor() {
 	}
 }
 
-func isLocked() (bool, error) {
-	conf := config.GetConfig()
+func isLocked(vindexPath string) (bool, error) {
 	fs := filesystem.GetFs()
 
-	stat, err := fs.Stat(lockFilePath(conf.VIndexPath))
+	stat, err := fs.Stat(lockFilePath(vindexPath))
 	if err == nil {
 		return false, nil
 	}
@@ -105,7 +105,7 @@ func isLocked() (bool, error) {
 		return false, errors.New("stat type error")
 	}
 
-	lockFile, err := fs.OpenFile(lockFilePath(conf.VIndexPath), os.O_RDONLY, 0644)
+	lockFile, err := fs.OpenFile(lockFilePath(vindexPath), os.O_RDONLY, 0644)
 	if err != nil {
 		return true, err
 	}
@@ -127,11 +127,10 @@ func isLocked() (bool, error) {
 	return !(int64(timestamp) < now), nil
 }
 
-func appendRecord(vindexItem vindexdata.VIndexItem) (bool, error) {
-	config := config.GetConfig()
+func appendRecord(conf *config.Config, vindexItem *vindexdata.VIndexItem) (bool, error) {
 	fs := filesystem.GetFs()
 
-	file, err := fs.OpenFile(config.VIndexPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644)
+	file, err := fs.OpenFile(conf.VIndexPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644)
 	if err != nil {
 		return false, err
 	}

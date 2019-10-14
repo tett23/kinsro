@@ -7,6 +7,8 @@ import (
 	"strings"
 
 	"github.com/joho/godotenv"
+	"github.com/pkg/errors"
+	"github.com/tett23/kinsro/src/filesystem"
 )
 
 // Config config
@@ -19,19 +21,35 @@ type Config struct {
 var config Config
 
 func envPath() (string, error) {
-	pwd, err := os.Getwd()
-	if err != nil {
-		return "aaa", err
-	}
-
 	goEnv := os.Getenv("GO_ENV")
-	// dotenvPath, err := filepath.Abs(filepath.Join(pwd, "../../", envFilename((goEnv))))
-	dotenvPath, err := filepath.Abs(filepath.Join(pwd, envFilename((goEnv))))
+	dotenvPath, err := dotenvPath(goEnv)
 	if err != nil {
-		return "bbb", err
+		return "", errors.Wrap(err, "envPath")
 	}
 
 	return dotenvPath, nil
+}
+
+func dotenvPath(environment string) (string, error) {
+	currentPath, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+
+	fs := filesystem.GetRawFs()
+	envFile := envFilename(environment)
+
+	for currentPath != "/" {
+		path := filepath.Join(currentPath, envFile)
+		_, err = fs.Stat(path)
+		if err == nil {
+			return path, nil
+		}
+
+		currentPath = filepath.Dir(currentPath)
+	}
+
+	return "", errors.Errorf("dotenv file not found. env=%v", environment)
 }
 
 func envFilename(environment string) string {
