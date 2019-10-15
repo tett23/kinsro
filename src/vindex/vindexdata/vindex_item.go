@@ -2,6 +2,7 @@ package vindexdata
 
 import (
 	"crypto/md5"
+	"encoding/json"
 	"fmt"
 	"reflect"
 
@@ -9,12 +10,25 @@ import (
 	"golang.org/x/text/unicode/norm"
 )
 
+// Digest MD5
+type Digest [16]byte
+
+// MarshalJSON MarshalJSON
+func (digest Digest) MarshalJSON() ([]byte, error) {
+	return json.Marshal(digest.Hex())
+}
+
+// Hex Hex
+func (digest Digest) Hex() string {
+	return fmt.Sprintf("%x", digest)
+}
+
 // VIndexItem VIndexItem
 type VIndexItem struct {
-	Filename string   `bi_length:"2000" bi_type:"string"`
-	Date     uint64   `bi_length:"8" bi_type:"uint"`
-	Storage  string   `bi_length:"100" bi_type:"string"`
-	Digest   [16]byte `bi_length:"16" bi_type:"digest"`
+	Filename string `json:"filename" bi_length:"2000" bi_type:"string"`
+	Date     uint64 `json:"date" bi_length:"8" bi_type:"uint"`
+	Storage  string `json:"storage" bi_length:"100" bi_type:"string"`
+	Digest   Digest `json:"digest" bi_length:"16" bi_type:"digest"`
 }
 
 // NewVIndexItem NewVIndexItem
@@ -31,7 +45,7 @@ func NewVIndexItem(storage string, date uint64, filename string) VIndexItem {
 
 // HexDigest HexDigest
 func (item VIndexItem) HexDigest() string {
-	return fmt.Sprintf("%x", item.Digest)
+	return item.Digest.Hex()
 }
 
 // ToBinary ToBinary
@@ -81,6 +95,10 @@ func (item VIndexItem) ToBinary() []byte {
 
 	return ret
 }
+
+// MarshalJSON MarshalJSON
+// func (item VIndexItem) MarshalJSON() ([]byte, error) {
+// }
 
 // NewBinaryIndexItemFromBinary NewBinaryIndexItemFromBinary
 func NewBinaryIndexItemFromBinary(data []byte) (*VIndexItem, error) {

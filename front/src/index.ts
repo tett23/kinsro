@@ -16,4 +16,5 @@ import './wasm_exec';
   console.log(result.module);
 
   go.run(result.instance);
+  console.log(window.vindex);
 })();
