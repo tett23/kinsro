@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"syscall/js"
 
+	"github.com/pkg/errors"
+	"github.com/tett23/kinsro/src/js_main/assets"
 	"github.com/tett23/kinsro/src/vindex/vindexdata"
 )
 
@@ -23,7 +25,10 @@ func main() {
 
 // LoadVIndex LoadVIndex
 func LoadVIndex() (vindexdata.VIndex, error) {
-	return vindexdata.VIndex{
-		vindexdata.NewVIndexItem("test", 20181020, "test"),
-	}, nil
+	vindex, err := vindexdata.NewVIndexFromBinary(assets.AssetIndex)
+	if err != nil {
+		return nil, errors.Wrapf(err, "NewVIndexFromBinary failed")
+	}
+
+	return vindex, nil
 }

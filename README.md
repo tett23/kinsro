@@ -3,7 +3,7 @@
 ## Build
 
 ```
-$ make build
+$ VINDEX_PATH=path_to_vindex_file make build
 ```
 
 ## Test
