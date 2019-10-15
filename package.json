@@ -1,0 +1,23 @@
+{
+  "name": "kinsro",
+  "version": "0.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/tett23/kinsro",
+  "author": "tett23",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "build": "parcel build ./front/src/index.html -d ./front/public/ --public-url ./ --target browser",
+    "watch": "parcel watch ./front/src/index.html -d ./front/public/ --target browser"
+  },
+  "dependencies": {
+    "core-js": "^3.3.2",
+    "parcel-bundler": "^1.12.4"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.6.4",
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
+    "express": "^4.17.1",
+    "typescript": "^3.6.4"
+  }
+}

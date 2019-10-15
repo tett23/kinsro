@@ -1,3 +1,5 @@
 authorized_keys
 *.retry
 build/*
+.cache
+front/public

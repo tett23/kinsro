@@ -1,0 +1,19 @@
+{
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "modules": "auto",
+        "targets": {
+          "esmodules": true,
+          "browsers": "> 0.25%, not dead"
+        },
+        "spec": false,
+        "loose": false,
+        "useBuiltIns": "usage",
+        "corejs": 3
+      }
+    ]
+  ],
+  "plugins": ["@babel/plugin-proposal-class-properties"]
+}
