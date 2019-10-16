@@ -12,9 +12,9 @@ type DispatchProps = {};
 export type VIndexItemProps = OwnProps & StateProps & DispatchProps;
 
 export function VIndexItem({ digest, filename, date }: VIndexItemProps) {
-  console.log(basename);
   return (
     <tr>
+      <td>{digest}</td>
       <td>{basename(filename)}</td>
       <td>
         <FileDate date={date} />

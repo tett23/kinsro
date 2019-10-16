@@ -31,9 +31,29 @@ export default function VIndexDefault() {
 }
 
 export function buildVIndexProps(): VIndexProps {
-  const stateProps: StateProps = useSelector((state: State) => ({
-    vindex: state.domain.vindex.slice(0, 100),
-  }));
+  const stateProps: StateProps = useSelector((state: State) => {
+    const vindex = state.domain.vindex;
+    const filterText = state.ui.filterText;
+    if (filterText == null || filterText === '') {
+      return { vindex };
+    }
+
+    const normalizedQuery = filterText.normalize('NFKC');
+    const filtered = vindex.filter((item) => {
+      return item.filename.normalize('NFKC').includes(normalizedQuery);
+    });
+    const sorted = filtered.sort((a, b) => {
+      if (a.date !== b.date) {
+        return b.date - a.date;
+      }
+
+      return a.filename < b.filename ? -1 : 1;
+    });
+
+    return {
+      vindex: sorted,
+    };
+  });
 
   return {
     ...stateProps,
