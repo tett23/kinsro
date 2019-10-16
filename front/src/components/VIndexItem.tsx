@@ -1,6 +1,7 @@
 import React from 'react';
 import { basename } from 'path';
 import { VIndexItem as VIndexItemType } from 'models/VIndex';
+import { FileDate } from './common/Date';
 
 type OwnProps = {} & VIndexItemType;
 
@@ -15,7 +16,9 @@ export function VIndexItem({ digest, filename, date }: VIndexItemProps) {
   return (
     <tr>
       <td>{basename(filename)}</td>
-      <td>{`${date}`}</td>
+      <td>
+        <FileDate date={date} />
+      </td>
     </tr>
   );
 }

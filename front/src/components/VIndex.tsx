@@ -32,7 +32,7 @@ export default function VIndexDefault() {
 
 export function buildVIndexProps(): VIndexProps {
   const stateProps: StateProps = useSelector((state: State) => ({
-    vindex: state.domain.vindex,
+    vindex: state.domain.vindex.slice(0, 100),
   }));
 
   return {
