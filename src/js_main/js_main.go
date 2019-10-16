@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"syscall/js"
 
 	"github.com/pkg/errors"
@@ -21,6 +22,10 @@ func main() {
 	}
 
 	js.Global().Set("vindex", string(data))
+	js.Global().Set("vf", js.FuncOf(vf))
+
+	a := make(chan int)
+	<-a
 }
 
 // LoadVIndex LoadVIndex
@@ -31,4 +36,9 @@ func LoadVIndex() (vindexdata.VIndex, error) {
 	}
 
 	return vindex, nil
+}
+
+func vf(this js.Value, args []js.Value) interface{} {
+	fmt.Println("hogehoge")
+	return "hogeあああ"
 }

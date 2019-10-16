@@ -16,7 +16,9 @@
     "esModuleInterop": true,
     "allowJs": true,
     "resolveJsonModule": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "baseUrl": "./front/src",
+    "paths": ["models", "modules", "components"]
   },
   "include": ["./front/src/**/*", "./front/__tests__/**/*"],
   "exclude": [".git", "node_modules"]

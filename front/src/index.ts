@@ -1,6 +1,9 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import './wasm_exec';
+import React from 'react';
+import { render } from 'react-dom';
+import App from './App';
 
 (async () => {
   const go = new Go();
@@ -12,9 +15,11 @@ import './wasm_exec';
     console.error(result);
     return;
   }
-  console.log(result);
-  console.log(result.module);
 
   go.run(result.instance);
-  console.log(window.vindex);
+  const vindex = JSON.parse(window.vindex);
+
+  console.log(window.vf());
+  const root = document.getElementById('root');
+  render(React.createElement(App, { vindex }), root);
 })();

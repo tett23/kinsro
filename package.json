@@ -10,13 +10,25 @@
     "build": "parcel build ./front/src/index.html -d ./front/public/ --public-url ./ --target browser",
     "watch": "parcel watch ./front/src/index.html -d ./front/public/ --target browser"
   },
+  "alias": {
+    "models": "./front/src/models",
+    "modules": "./front/src/modules",
+    "components": "./front/src/components"
+  },
   "dependencies": {
     "core-js": "^3.3.2",
-    "parcel-bundler": "^1.12.4"
+    "parcel-bundler": "^1.12.4",
+    "react": "^16.10.2",
+    "react-dom": "^16.10.2",
+    "react-redux": "^7.1.1",
+    "redux": "^4.0.4",
+    "redux-thunk": "^2.3.0"
   },
   "devDependencies": {
     "@babel/core": "^7.6.4",
     "@babel/plugin-proposal-class-properties": "^7.5.5",
+    "@types/react-dom": "^16.9.2",
+    "@types/react-redux": "^7.1.4",
     "express": "^4.17.1",
     "typescript": "^3.6.4"
   }
