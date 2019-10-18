@@ -29,6 +29,8 @@ func main() {
 		commandFunc = append
 	case "symlink":
 		commandFunc = symlink
+	case "rebuild":
+		commandFunc = rebuild
 	default:
 		panic(fmt.Sprintf("Unexpected command. command=%v", command))
 	}
@@ -111,6 +113,20 @@ func symlinkAll(conf *config.Config, flagSet *flag.FlagSet) error {
 	err := commands.SymlinkAll(conf)
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func rebuild(conf *config.Config, flagSet *flag.FlagSet) error {
+	err := build(conf, flagSet)
+	if err != nil {
+		errors.Cause(err)
+	}
+
+	err = symlinkAll(conf, flagSet)
+	if err != nil {
+		errors.Cause(err)
 	}
 
 	return nil
