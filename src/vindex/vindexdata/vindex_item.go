@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"encoding/json"
 	"fmt"
+	"path/filepath"
 	"reflect"
 
 	"github.com/pkg/errors"
@@ -46,6 +47,13 @@ func NewVIndexItem(storage string, date uint64, filename string) VIndexItem {
 // HexDigest HexDigest
 func (item VIndexItem) HexDigest() string {
 	return item.Digest.Hex()
+}
+
+// SymlinkName SymlinkName
+func (item VIndexItem) SymlinkName() string {
+	digest := item.HexDigest()
+
+	return filepath.Join(digest[0:2], digest[2:4], digest[4:]+".mp4")
 }
 
 // ToBinary ToBinary

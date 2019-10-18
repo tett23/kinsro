@@ -27,6 +27,8 @@ func main() {
 		commandFunc = ls
 	case "append":
 		commandFunc = append
+	case "symlink":
+		commandFunc = symlink
 	default:
 		panic(fmt.Sprintf("Unexpected command. command=%v", command))
 	}
@@ -81,6 +83,23 @@ func append(conf *config.Config, flagSet *flag.FlagSet) error {
 	}
 
 	err = commands.Append(conf, vindexItem)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(vindexItem.HexDigest())
+
+	return nil
+}
+
+func symlink(conf *config.Config, flagSet *flag.FlagSet) error {
+	args := flagSet.Args()
+	digest := args[0]
+	if digest == "" {
+		return errors.Errorf("Invalid digest")
+	}
+
+	err := commands.Symlink(conf, digest)
 	if err != nil {
 		return err
 	}

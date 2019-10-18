@@ -2,6 +2,7 @@ package reader
 
 import (
 	"crypto/md5"
+	"fmt"
 	"os"
 
 	"github.com/pkg/errors"
@@ -35,6 +36,17 @@ func ReadAll(vindexPath string) (vindexdata.VIndex, error) {
 
 // FindByFilename FindByFilename
 func FindByFilename(conf *config.Config, filename string) (*vindexdata.VIndexItem, error) {
+	digest := md5.Sum([]byte(filename))
+	vindexItem, err := FindByDigest(conf, fmt.Sprintf("%x", digest))
+	if err != nil {
+		return nil, errors.Wrapf(err, "reader.FindByFilename failed. filename=%v", filename)
+	}
+
+	return vindexItem, nil
+}
+
+// FindByDigest FindByDigest
+func FindByDigest(conf *config.Config, digest string) (*vindexdata.VIndexItem, error) {
 	fs := filesystem.GetFs()
 
 	f, err := fs.OpenFile(conf.VIndexPath, os.O_RDONLY, 0644)
@@ -48,7 +60,6 @@ func FindByFilename(conf *config.Config, filename string) (*vindexdata.VIndexIte
 		return nil, errors.Wrap(err, "Stat failed")
 	}
 
-	digest := md5.Sum([]byte(filename))
 	rowLen := vindexdata.RowLength()
 	data := make([]byte, rowLen)
 	fileSize := stat.Size()
@@ -64,7 +75,7 @@ func FindByFilename(conf *config.Config, filename string) (*vindexdata.VIndexIte
 			return nil, errors.Wrap(err, "NewBinaryIndexItemFromBinary failed")
 		}
 
-		if vindexItem.Digest == digest {
+		if vindexItem.HexDigest() == digest {
 			return vindexItem, nil
 		}
 	}

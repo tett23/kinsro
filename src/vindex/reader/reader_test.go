@@ -52,3 +52,41 @@ func TestFindByFilename2(t *testing.T) {
 		t.Error(errors.Errorf(""))
 	}
 }
+
+func TestFindByDigest1(t *testing.T) {
+	vindex := vindexdata.VIndex{
+		vindexdata.NewVIndexItem("video1", 20190101, "test1.mp4"),
+	}
+	err := writer.CreateNewIndexFile(&conf, vindex)
+	if err != nil {
+		t.Error(err)
+	}
+
+	record, err := reader.FindByFilename(&conf, vindex[0].Digest.Hex())
+	if err != nil {
+		t.Error(err)
+	}
+
+	if diff := cmp.Diff(*record, vindex[0]); diff != "" {
+		t.Error(diff)
+	}
+}
+
+func TestFindByDigest2(t *testing.T) {
+	vindex := vindexdata.VIndex{
+		vindexdata.NewVIndexItem("video1", 20190101, "test1.mp4"),
+	}
+	err := writer.CreateNewIndexFile(&conf, vindex)
+	if err != nil {
+		t.Error(err)
+	}
+
+	record, err := reader.FindByFilename(&conf, "a4ddbc2cc9364c45b0012d9acdf32cf0")
+	if err != nil {
+		t.Error(err)
+	}
+
+	if record != nil {
+		t.Error(errors.Errorf(""))
+	}
+}
