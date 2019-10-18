@@ -17,9 +17,14 @@ import App from './App';
   }
 
   go.run(result.instance);
-  const vindex = JSON.parse(window.vindex);
+  const vindexResult = await fetch('/vindex');
+  const bytes = new Uint8Array(await vindexResult.arrayBuffer());
 
-  console.log(window.vf());
-  const root = document.getElementById('root');
-  render(React.createElement(App, { vindex }), root);
+  setTimeout(async () => {
+    window.parseVIndex(bytes);
+    const vindex = JSON.parse(window.vindex);
+
+    const root = document.getElementById('root');
+    render(React.createElement(App, { vindex }), root);
+  }, 1000);
 })();

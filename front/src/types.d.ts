@@ -8,5 +8,6 @@ declare global {
 
   interface Window {
     vindex: string;
+    parseVIndex: (buf: Uint8Array) => void;
   }
 }
