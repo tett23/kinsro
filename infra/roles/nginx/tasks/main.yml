@@ -1,0 +1,44 @@
+- name: 'Create nginx user'
+  user:
+    name: nginx
+  become: yes
+
+# - name: Create a symbolic link
+#   file:
+#     path: /var/log/nginx
+#     owner: nginx
+#     group: nginx
+
+- name: 'Install nginx'
+  apt:
+    name: nginx
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  become: yes
+
+- name: 'Start nginx'
+  service:
+    name: nginx
+    enabled: yes
+  become: yes
+
+- name: 'Copy kinsro.conf'
+  copy:
+    src: ./kinsro.conf
+    dest: /etc/nginx/sites-available/kinsro.conf
+  become: yes
+
+- name: 'Create symlink'
+  file:
+    src: /etc/nginx/sites-available/kinsro.conf
+    dest: /etc/nginx/sites-enabled/kinsro.conf
+    remote_src: yes
+    state: link
+  become: yes
+
+- name: 'Reload Nginx'
+  service:
+    name: nginx
+    state: reloaded
+  become: yes

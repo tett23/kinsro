@@ -4,3 +4,4 @@
   roles:
     - role: video_storage
     - role: samba
+    - role: nginx
