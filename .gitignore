@@ -3,4 +3,3 @@ authorized_keys
 build/*
 .cache
 front/public
-src/js_main/assets/assets.go
