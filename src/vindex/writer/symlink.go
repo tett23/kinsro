@@ -1,7 +1,6 @@
 package writer
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -50,7 +49,6 @@ func createSymlink(src, dst string) error {
 	os.Remove(dst)
 	err = os.Symlink(relSrc, filepath.Base(dst))
 	if err != nil {
-		fmt.Println("os.Symlink", err)
 		return errors.Wrapf(err, "os.Symlinkfailed. src=%v dst=%v", relSrc, filepath.Base(dst))
 	}
 

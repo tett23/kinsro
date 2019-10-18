@@ -94,12 +94,21 @@ func append(conf *config.Config, flagSet *flag.FlagSet) error {
 
 func symlink(conf *config.Config, flagSet *flag.FlagSet) error {
 	args := flagSet.Args()
-	digest := args[0]
-	if digest == "" {
-		return errors.Errorf("Invalid digest")
+	if len(args) == 0 {
+		return symlinkAll(conf, flagSet)
 	}
 
+	digest := args[0]
 	err := commands.Symlink(conf, digest)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func symlinkAll(conf *config.Config, flagSet *flag.FlagSet) error {
+	err := commands.SymlinkAll(conf)
 	if err != nil {
 		return err
 	}
