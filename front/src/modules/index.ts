@@ -34,7 +34,7 @@ export type ThunkStore<S, A extends Actions> = Store<S, A> & {
 export default function initializeStore(vindex: VIndex): Store<State, Actions> {
   const init: State = {
     domain: { vindex },
-    ui: {},
+    ui: initialUIState(),
   };
 
   const store: Store<State, Actions> = createStore(

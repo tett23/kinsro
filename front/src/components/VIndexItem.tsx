@@ -1,5 +1,6 @@
 import React from 'react';
 import { basename } from 'path';
+import { Link } from 'react-router-dom';
 import { VIndexItem as VIndexItemType } from 'models/VIndex';
 import { FileDate } from './common/Date';
 
@@ -14,8 +15,9 @@ export type VIndexItemProps = OwnProps & StateProps & DispatchProps;
 export function VIndexItem({ digest, filename, date }: VIndexItemProps) {
   return (
     <tr>
-      <td>{digest}</td>
-      <td>{basename(filename)}</td>
+      <td>
+        <Link to={`/content/${digest}`}>{basename(filename)}</Link>
+      </td>
       <td>
         <FileDate date={date} />
       </td>
