@@ -17,8 +17,13 @@
     "allowJs": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
+    "types": ["node"],
     "baseUrl": "./front/src",
-    "paths": ["models", "modules", "components"]
+    "paths": {
+      "models": ["./models"],
+      "modules": ["./modules"],
+      "components": ["./components"]
+    }
   },
   "include": ["./front/src/**/*", "./front/__tests__/**/*"],
   "exclude": [".git", "node_modules"]
