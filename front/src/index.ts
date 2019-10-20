@@ -6,13 +6,9 @@ import { render } from 'react-dom';
 import App from './App';
 
 (async () => {
-  var memory = new WebAssembly.Memory({
-    initial: 1000,
-    maximum: 20000,
-  });
   const go = new Go();
   const result = await WebAssembly.instantiateStreaming(
-    fetch('./kinsro.wasm'),
+    fetch('/kinsro.wasm'),
     go.importObject,
   ).catch((err: Error) => err);
   if (result instanceof Error) {

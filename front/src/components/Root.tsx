@@ -31,7 +31,6 @@ export function buildRootProps(ownProps: OwnProps): RootProps {
   const stateProps: StateProps = useSelector((state: State) => ({
     page: state.ui.pages.root.page || 0,
   }));
-  console.log('stateProps', stateProps);
 
   return {
     ...ownProps,

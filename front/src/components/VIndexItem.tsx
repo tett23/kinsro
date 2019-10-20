@@ -16,7 +16,7 @@ export function VIndexItem({ digest, filename, date }: VIndexItemProps) {
   return (
     <tr>
       <td>
-        <Link to={`/content/${digest}`}>{basename(filename)}</Link>
+        <Link to={`/contents/${digest}`}>{basename(filename)}</Link>
       </td>
       <td>
         <FileDate date={date} />

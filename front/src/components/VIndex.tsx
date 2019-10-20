@@ -22,7 +22,6 @@ type DispatchProps = {
 export type VIndexProps = OwnProps & StateProps & DispatchProps;
 
 export function VIndex({ vindex, page, maxPages, onClickPage }: VIndexProps) {
-  console.log('vindex', vindex);
   const items = vindex.map((item) => (
     <VIndexItem key={item.digest} {...item} />
   ));
@@ -52,7 +51,6 @@ export function buildVIndexProps(ownProps: OwnProps): VIndexProps {
       maxPages,
     };
   });
-  console.log(stateProps.vindex);
 
   const dispatch = useDispatch();
   const dispatchProps: DispatchProps = {
