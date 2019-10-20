@@ -25,7 +25,7 @@ export function VideoContent({ digest, vindexItem }: VideoContentProps) {
     <div>
       <h2>{basename(vindexItem.filename)}</h2>
       <video controls>
-        <source src={`/videos/${digest}`} />
+        <source src={`/videos/${digest}.mp4`} />
       </video>
     </div>
   );
