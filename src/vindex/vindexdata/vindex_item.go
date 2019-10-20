@@ -26,7 +26,7 @@ func (digest Digest) Hex() string {
 
 // VIndexItem VIndexItem
 type VIndexItem struct {
-	Filename string `json:"filename" bi_length:"2000" bi_type:"string"`
+	Filename string `json:"filename" bi_length:"500" bi_type:"string"`
 	Date     uint64 `json:"date" bi_length:"8" bi_type:"uint"`
 	Storage  string `json:"storage" bi_length:"100" bi_type:"string"`
 	Digest   Digest `json:"digest" bi_length:"16" bi_type:"digest"`
@@ -104,10 +104,6 @@ func (item VIndexItem) ToBinary() []byte {
 	return ret
 }
 
-// MarshalJSON MarshalJSON
-// func (item VIndexItem) MarshalJSON() ([]byte, error) {
-// }
-
 // NewBinaryIndexItemFromBinary NewBinaryIndexItemFromBinary
 func NewBinaryIndexItemFromBinary(data []byte) (*VIndexItem, error) {
 	ret := VIndexItem{}
@@ -145,8 +141,6 @@ func NewBinaryIndexItemFromBinary(data []byte) (*VIndexItem, error) {
 			for i := range colRawBytes {
 				rawValue.FieldByName(pair.Name).Index(i).SetUint(uint64(colRawBytes[i]))
 			}
-			// rawValue.FieldByName(pair.Name).SetBytes(colRawBytes)
-			// rawValue.FieldByName(pair.Name).data = colRowBytes
 		}
 
 		offset += pair.Length
