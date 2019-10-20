@@ -70,21 +70,27 @@ function filterAndSort(
   vindex: VIndexType,
   filterText: string | null,
 ): VIndexType {
-  if (filterText == null || filterText === '') {
+  return sortVIndex(filterVIndex(vindex, filterText));
+}
+
+function filterVIndex(vindex: VIndexType, query: string | null): VIndexType {
+  if (query == null || query === '') {
     return vindex;
   }
 
-  const normalizedQuery = filterText.normalize('NFKC');
-  const filtered = vindex.filter((item) => {
+  const normalizedQuery = query.normalize('NFKC');
+
+  return vindex.filter((item) => {
     return item.filename.normalize('NFKC').includes(normalizedQuery);
   });
-  const sorted = filtered.sort((a, b) => {
+}
+
+function sortVIndex(vindex: VIndexType): VIndexType {
+  return vindex.sort((a, b) => {
     if (a.date !== b.date) {
       return b.date - a.date;
     }
 
     return a.filename < b.filename ? -1 : 1;
   });
-
-  return sorted;
 }
