@@ -7,8 +7,8 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "build": "parcel build ./front/src/index.html -d ./front/public/ --public-url ./ --target browser",
-    "watch": "parcel watch ./front/src/index.html -d ./front/public/ --target browser"
+    "build": "parcel build ./front/src/index.ts -d ./build/front --public-url ./",
+    "watch": "parcel watch ./front/src/index.html -d ./front/public/"
   },
   "alias": {
     "models": "./front/src/models",

@@ -1,0 +1,9 @@
+#! /bin/sh
+
+ssh pi@10.0.1.110 "mkdir -p ~/bin"
+scp .env.production pi@10.0.1.110:bin/.env 
+scp build/kinsro_linux_arm64 pi@10.0.1.110:bin/kinsro
+ssh pi@10.0.1.110 "chmod +x ~/bin/kinsro"
+ssh pi@10.0.1.110 "rm -rf /var/www/kinsro/*"
+scp build/front/* pi@10.0.1.110:/var/www/kinsro
+scp assets/index.html pi@10.0.1.110:/var/www/kinsro

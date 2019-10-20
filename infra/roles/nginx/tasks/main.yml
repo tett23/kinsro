@@ -3,12 +3,6 @@
     name: nginx
   become: yes
 
-# - name: Create a symbolic link
-#   file:
-#     path: /var/log/nginx
-#     owner: nginx
-#     group: nginx
-
 - name: 'Install nginx'
   apt:
     name: nginx
@@ -23,6 +17,12 @@
     enabled: yes
   become: yes
 
+- name: 'Copy mime.types'
+  copy:
+    src: ./mime.types
+    dest: /etc/nginx/mime.types
+  become: yes
+
 - name: 'Copy kinsro.conf'
   copy:
     src: ./kinsro.conf
@@ -35,6 +35,15 @@
     dest: /etc/nginx/sites-enabled/kinsro.conf
     remote_src: yes
     state: link
+  become: yes
+
+- name: 'Create public dir'
+  file:
+    path: /var/www/kinsro
+    state: directory
+    mode: '0755'
+    owner: pi
+    group: pi
   become: yes
 
 - name: 'Reload Nginx'
