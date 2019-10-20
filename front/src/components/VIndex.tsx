@@ -66,7 +66,10 @@ export function buildVIndexProps(ownProps: OwnProps): VIndexProps {
   };
 }
 
-function filterAndSort(vindex: VIndex, filterText: string | null): VIndex {
+function filterAndSort(
+  vindex: VIndexType,
+  filterText: string | null,
+): VIndexType {
   if (filterText == null || filterText === '') {
     return vindex;
   }
