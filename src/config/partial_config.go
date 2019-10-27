@@ -138,8 +138,6 @@ func NewPartialConfigFromFile(fs afero.Fs, path string) (*PartialConfig, error) 
 	}
 
 	buf := bytes.NewBuffer(data)
-	println(path)
-	println(string(data))
 	envMap, err := godotenv.Parse(buf)
 	if err != nil {
 		return nil, err

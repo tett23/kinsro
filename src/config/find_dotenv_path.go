@@ -23,17 +23,6 @@ func findDotenvPath(fs afero.Fs) (string, bool, error) {
 	if env == "" {
 		env = "production"
 	}
-	home := os.Getenv("HOME")
-	if home == "" {
-		home = "/"
-	}
-	dotenv, ok, err = checkConfigDirectory(fs, env, home)
-	if err != nil {
-		return "", false, err
-	}
-	if ok {
-		return dotenv, true, nil
-	}
 
 	pwd, err := os.Getwd()
 	if err != nil {
@@ -41,6 +30,19 @@ func findDotenvPath(fs afero.Fs) (string, bool, error) {
 	}
 
 	dotenv, ok, err = checkCurrentDirectory(fs, env, pwd)
+	if err != nil {
+		return "", false, err
+	}
+	if ok {
+		return dotenv, true, nil
+	}
+
+	home := os.Getenv("HOME")
+	if home == "" {
+		home = "/"
+	}
+
+	dotenv, ok, err = checkConfigDirectory(fs, env, home)
 	if err != nil {
 		return "", false, err
 	}
