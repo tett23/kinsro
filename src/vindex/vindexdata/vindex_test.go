@@ -4,7 +4,14 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/tett23/kinsro/src/config"
+	"github.com/tett23/kinsro/src/filesystem"
 )
+
+func TestMain(m *testing.M) {
+	filesystem.CopyDotfile()
+	config.Initialize()
+}
 
 func TestVIndexToBinaryAndNewIndexFromBinary(t *testing.T) {
 	vindex := VIndex{

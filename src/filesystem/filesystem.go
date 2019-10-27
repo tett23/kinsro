@@ -2,6 +2,7 @@ package filesystem
 
 import (
 	"os"
+	"path/filepath"
 
 	"github.com/spf13/afero"
 )
@@ -28,4 +29,20 @@ func GetFs() afero.Fs {
 // GetRawFs GetRawFs
 func GetRawFs() afero.Fs {
 	return rawFs
+}
+
+// ResetTestFs ResetTestFs
+func ResetTestFs() {
+	fs = afero.NewMemMapFs()
+}
+
+// CopyDotfile CopyDotfile
+func CopyDotfile() {
+	rawFs := GetRawFs()
+
+	dotenvPath := filepath.Join(os.Getenv("GOPATH"), "src", "github.com", "tett23", "kinsro", ".env.test")
+	content, _ := afero.ReadFile(rawFs, dotenvPath)
+
+	memFs := GetFs()
+	afero.WriteFile(memFs, "/.env", content, 0644)
 }

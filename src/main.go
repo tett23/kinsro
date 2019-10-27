@@ -13,6 +13,10 @@ import (
 	"github.com/tett23/kinsro/src/vindex/writer"
 )
 
+func init() {
+	config.Initialize()
+}
+
 func main() {
 	flagSet := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 

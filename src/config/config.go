@@ -1,12 +1,8 @@
 package config
 
 import (
-	"fmt"
 	"os"
-	"path/filepath"
-	"strings"
 
-	"github.com/joho/godotenv"
 	"github.com/pkg/errors"
 	"github.com/tett23/kinsro/src/filesystem"
 )
@@ -20,90 +16,45 @@ type Config struct {
 
 var config Config
 
-func envPath() (string, error) {
-	goEnv := os.Getenv("GO_ENV")
-	dotenvPath, err := dotenvPath(goEnv)
-	if err != nil {
-		return "", errors.Wrap(err, "envPath")
+// Initialize Initialize
+func Initialize() {
+	if os.Getenv("GO_ENV") == "test" {
+		filesystem.CopyDotfile()
 	}
 
-	return dotenvPath, nil
-}
-
-func dotenvPath(environment string) (string, error) {
-	if dotenv := os.Getenv("DOTENV_PATH"); dotenv != "" {
-		_, err := os.Stat(dotenv)
+	envConfig := NewPartialConfigFromEnvironmentVariable()
+	if envConfig.Fulfillded() {
+		conf, err := envConfig.ToConfig()
 		if err != nil {
-			return "", err
+			panic(err)
 		}
 
-		return dotenv, nil
+		config = *conf
+
+		return
 	}
 
-	currentPath, err := os.Getwd()
+	fs := filesystem.GetFs()
+	dotenvPath, ok, err := findDotenvPath(fs)
 	if err != nil {
-		return "", err
+		panic(err)
+	}
+	if !ok {
+		panic(errors.Errorf("dotenv file not found"))
 	}
 
-	fs := filesystem.GetRawFs()
-	envFile := envFilename(environment)
-
-	for currentPath != "/" {
-		path := filepath.Join(currentPath, envFile)
-		_, err = fs.Stat(path)
-		if err == nil {
-			return path, nil
-		}
-
-		currentPath = filepath.Dir(currentPath)
-	}
-
-	return "", errors.Errorf("dotenv file not found. env=%v", environment)
-}
-
-func envFilename(environment string) string {
-	switch environment {
-	case "development":
-		return ".development.env"
-	case "test":
-		return ".test.env"
-	case "production":
-		return ".production.env"
-	case "":
-		return ".env"
-	default:
-		panic(fmt.Sprintf("Unexpected environment name. %v", environment))
-	}
-}
-
-func init() {
-	dotenvPath, err := envPath()
+	fileConfig, err := NewPartialConfigFromFile(fs, dotenvPath)
 	if err != nil {
 		panic(err)
 	}
 
-	err = godotenv.Load(dotenvPath)
+	merged := fileConfig.Merge(envConfig)
+	conf, err := merged.ToConfig()
 	if err != nil {
 		panic(err)
 	}
 
-	goEnv := os.Getenv("GO_ENV")
-	if goEnv == "" {
-		fmt.Println("Incorrect GO_ENV")
-	}
-
-	vindexPath := os.Getenv("VINDEX_PATH")
-	if vindexPath == "" {
-		fmt.Println("Incorrect VINDEX_PATH")
-	}
-
-	storagePaths := strings.Split(os.Getenv("STORAGE_PATHS"), ",")
-
-	config = Config{
-		Environment:  goEnv,
-		VIndexPath:   vindexPath,
-		StoragePaths: storagePaths,
-	}
+	config = *conf
 }
 
 // GetConfig GetConfig

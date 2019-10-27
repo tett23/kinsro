@@ -1,10 +1,11 @@
 SOURCES := $(shell find . -type f -name '*.go')
 FRONT_SOURCES := $(shell find ./front/src -type f -name '*.ts' -or -name '*.tsx' )
+TEST_DOTENV := $(shell find ./.env.test )
 
-test:
+test: $(TEST_DOTENV) $(SOURCES)
 	@GO_ENV=test go test ./src/... -timeout 1s
 
-test-v:
+test-v: $(TEST_DOTENV) $(SOURCES)
 	@GO_ENV=test go test ./src/... -timeout 1s -v
 
 build: $(SOURCES) 
