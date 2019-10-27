@@ -43,3 +43,15 @@ sudo parted -s /dev/sda mklabel gpt mkpart primary 0% 100%
 sudo mkfs -t xfs /dev/sda
 sudo mkdir -p /mnt/video1
 sudo mount -a
+
+### Setup video tmp
+
+```
+sudo fdisk /dev/sda # delete all partitions and save
+sudo parted -s /dev/sda mklabel gpt mkpart primary 0% 100%
+sudo mkfs -t ext4 /dev/sda
+sudo mkdir -p /media/video_tmp
+# edit fstab
+sudo mount -a
+sudo chown pi:pi /media/video_tmp
+```

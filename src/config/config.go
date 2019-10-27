@@ -31,6 +31,15 @@ func envPath() (string, error) {
 }
 
 func dotenvPath(environment string) (string, error) {
+	if dotenv := os.Getenv("DOTENV_PATH"); dotenv != "" {
+		_, err := os.Stat(dotenv)
+		if err != nil {
+			return "", err
+		}
+
+		return dotenv, nil
+	}
+
 	currentPath, err := os.Getwd()
 	if err != nil {
 		return "", err

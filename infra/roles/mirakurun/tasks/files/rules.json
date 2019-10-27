@@ -4,11 +4,11 @@
     "categories": ["anime"],
     "ignore_channels": ["26", "27"],
     "hour": {
-      "start": 23,
+      "start": 10,
       "end": 4
     },
     "duration": {
-      "min": 600,
+      "min": 300,
       "max": 10801
     },
     "ignore_titles": [],
@@ -20,7 +20,7 @@
     "categories": ["anime"],
     "sid": 333,
     "duration": {
-      "min": 600,
+      "min": 300,
       "max": 10801
     }
   }

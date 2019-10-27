@@ -1,86 +1,157 @@
-- name: 'Is exist pm2'
-  command: which pm2
-  register: is_exist_pm2
-  ignore_errors: True
+# - name: 'Is exist pm2'
+#   command: which pm2
+#   register: is_exist_pm2
+#   ignore_errors: True
 
-- name: 'Is exist mirakurun'
-  command: which mirakurun
-  register: is_exist_mirakurun
-  ignore_errors: True
+# - name: 'Is exist mirakurun'
+#   command: which mirakurun
+#   register: is_exist_mirakurun
+#   ignore_errors: True
 
-- name: 'Is exist mirakurun process'
-  command: pgrep Mirakurun
-  register: is_exist_mirakurun_process
-  ignore_errors: True
+# - name: 'Is exist mirakurun process'
+#   command: pgrep Mirakurun
+#   register: is_exist_mirakurun_process
+#   ignore_errors: True
 
-- name: 'Install pm2'
-  command: 'npm install -g pm2'
-  become: yes
-  when: is_exist_pm2 is not success
+# - name: 'Install pm2'
+#   command: 'npm install -g pm2'
+#   become: yes
+#   when: is_exist_pm2 is not success
 
-- name: 'Install mirakurun'
-  command: 'npm install -g mirakurun'
-  become: yes
-  when: is_exist_mirakurun is not success
+# - name: 'Install mirakurun'
+#   command: 'npm install -g mirakurun'
+#   become: yes
+#   when: is_exist_mirakurun is not success
 
-- name: 'Init mirakurun'
-  command: 'mirakurun init'
-  become: yes
-  when: is_exist_mirakurun is not success
+# - name: 'Init mirakurun'
+#   command: 'mirakurun init'
+#   become: yes
+#   when: is_exist_mirakurun is not success
 
-- name: 'Copy tuners.yml'
+# - name: 'Copy tuners.yml'
+#   copy:
+#     src: ./tuners.yml
+#     dest: /usr/local/etc/mirakurun/tuners.yml
+#   become: yes
+
+# - name: 'Restart mirakurun'
+#   command: 'mirakurun restart'
+#   become: yes
+#   when: is_exist_mirakurun_process is not success
+
+# - name: 'Is exist chinachu directory'
+#   command: ''
+#   when: is_exist_mirakurun_process is not success
+#   ignore_errors: True
+
+# - name: 'Stat chinachu dir'
+#   stat:
+#     path: '$HOME/chinachu'
+#   register: is_exist_chinachu_dir
+
+# - name: 'Clone chinachu'
+#   command: 'git clone --depth 1 git@github.com:Chinachu/Chinachu.git ~/chinachu'
+#   when: is_exist_chinachu_dir.stat.exists == false
+
+# - name: 'Copy config.json'
+#   copy:
+#     src: ./config.json
+#     dest: $HOME/chinachu/config.json
+
+# - name: 'Copy rules.json'
+#   copy:
+#     src: ./rules.json
+#     dest: $HOME/chinachu/rules.json
+
+# - name: 'Copy processes.json'
+#   copy:
+#     src: ./processes.json
+#     dest: /home/pi/chinachu/processes.json
+#   become: yes
+
+# - name: 'Register chinachu to pm2'
+#   command: 'pm2 start processes.json'
+#   args:
+#     chdir: /home/pi/chinachu
+#   become: yes
+
+# - name: 'Save pm2 config'
+#   command: 'pm2 save'
+#   args:
+#     chdir: /home/pi/chinachu
+#   become: yes
+
+# - name: 'Save pm2 config'
+#   command: 'pm2 startup'
+#   become: yes
+
+# - name: 'mkdir encode'
+#   file:
+#     path: $HOME/encode
+#     state: directory
+#     mode: '0755'
+
+- name: 'Copy recorded-command'
   copy:
-    src: ./tuners.yml
-    dest: /usr/local/etc/mirakurun/tuners.yml
-  become: yes
+    src: ./recorded-command
+    dest: $HOME/encode/recorded-command
+    mode: '0744'
 
-- name: 'Restart mirakurun'
-  command: 'mirakurun restart'
-  become: yes
-  when: is_exist_mirakurun_process is not success
-
-- name: 'Is exist chinachu directory'
-  command: ''
-  when: is_exist_mirakurun_process is not success
-  ignore_errors: True
-
-- name: 'Stat chinachu dir'
-  stat:
-    path: '$HOME/chinachu'
-  register: is_exist_chinachu_dir
-
-- name: 'Clone chinachu'
-  command: 'git clone --depth 1 git@github.com:Chinachu/Chinachu.git ~/chinachu'
-  when: is_exist_chinachu_dir.stat.exists == false
-
-- name: 'Copy config.json'
+- name: 'Copy bulk-encode command'
   copy:
-    src: ./config.json
-    dest: $HOME/chinachu/config.json
+    src: ./bulk-encode
+    dest: $HOME/encode/bulk-encode
+    mode: '0744'
 
-- name: 'Copy rules.json'
+- name: 'Copy encode command'
   copy:
-    src: ./rules.json
-    dest: $HOME/chinachu/rules.json
+    src: ./ts2mp4.sh
+    dest: $HOME/encode/ts2mp4.sh
 
-- name: 'Copy processes.json'
+- name: 'Copy ffmpeg preset'
   copy:
-    src: ./processes.json
-    dest: /home/pi/chinachu/processes.json
-  become: yes
+    src: ./ts2mp4.ffpreset
+    dest: $HOME/encode/ts2mp4.ffpreset
+# - name: 'mkdir video_tmp'
+#   file:
+#     owner: pi
+#     group: pi
+#     recurse: yes
+#     path: /media/video_tmp
+#     state: directory
+#   become: yes
 
-- name: 'Register chinachu to pm2'
-  command: 'pm2 start processes.json'
-  args:
-    chdir: /home/pi/chinachu
-  become: yes
+# - name: 'mount video_tmp'
+#   mount:
+#     name: /media/video_tmp
+#     src: '/dev/sda'
+#     fstype: ext4
+#     opts: 'defaults,users'
+#     state: mounted
+#   become: yes
 
-- name: 'Save pm2 config'
-  command: 'pm2 save'
-  args:
-    chdir: /home/pi/chinachu
-  become: yes
+# - name: 'Install samba-client'
+#   apt:
+#     name: samba-client
+#     state: latest
+#     update_cache: yes
+#     cache_valid_time: 3600
+#   become: yes
 
-- name: 'Save pm2 config'
-  command: 'pm2 startup'
-  become: yes
+# - name: 'mkdir video1'
+#   file:
+#     owner: pi
+#     group: pi
+#     recurse: yes
+#     path: /media/video1
+#     state: directory
+#   become: yes
+
+# - name: 'mount video1'
+#   mount:
+#     name: /media/video1
+#     src: '//10.0.1.110/video1'
+#     fstype: cifs
+#     opts: 'uid=pi,gid=pi,guest,file_mode=0777,dir_mode=0777,rw,sec=ntlmv2'
+#     state: mounted
+#   become: yes

@@ -1,0 +1,77 @@
+#!/bin/sh
+
+PI_HOME=/home/pi
+
+bulkEncode() {
+  local TS=$1
+  local BASE=$(basename "$TS" .ts)
+  local JSON="${BASE}.json"
+
+  local META=$(cat $JSON)
+  echo $META | less
+}
+
+toJsonPath() {
+  local TS_PATH=$1
+  local EXT=$1
+  replaceExt $TS_PATH $EXT
+  
+  local BASE=$(basename "$TS_PATH" .ts)
+  local DIRNAME=$(dirname "$TS_PATH")
+  local JSON_PATH="${DIRNAME}/${BASE}.json"
+
+  echo $JSON_PATH
+}
+
+recorded() {
+  local TS_PATH=$1
+  local CONTENT=$2
+  local JSON_PATH=toJsonPath $TS_PATH
+  local TMP_DIR=$(dirname "$TS_PATH")
+
+  echo "$CONTENT" > $JSON_PATH
+}
+
+encodeOne() {
+  local TS_PATH=$1
+  local JSON_PATH=toJsonPath $TS_PATH
+
+  local META="$(cat $JSON_PATH)"
+  local PI_HOME=/home/pi
+
+  sh $PI_HOME/encode/recorded-command $TS_PATH $META
+}
+
+# $1 tmp ts path
+moveFilesToPersisted() {
+  local TS_PATH=$1
+}
+
+# $! ts file path
+replaceExt() {
+  local TS_PATH=$1
+  local EXT=$2
+  local BASE=$(basename "$TS_PATH" .ts)
+  local DIRNAME=$(dirname "$TS_PATH")
+  local JSON_PATH="${DIRNAME}/${BASE}.${EXT}"
+}
+
+# $1 tmp ts path
+buildPersistedPath() {
+  local TS_PATH$1
+  local TS_
+  local DATE=$(echo $BASE | awk '{ printf "%d/%d/%d", substr($1, 1, 4), substr($1, 5, 2), substr($1, 7, 2) }')
+  local STORAGE_PARENT=/media/video1/$DATE
+
+}
+
+# $1 persisted path
+appendIndexAndCreateSymlink() {
+  local DIGEST=$(DOTENV_PATH=$PI_HOME/bin/.env kinsro append $STORAGE_OUT)
+  ssh -o "StrictHostKeyChecking=no" pi@10.0.1.110 "DOTENV_PATH=bin/.env bin/kinsro symlink $DIGEST" 
+}
+
+# appendIndexAndCreateSymlink
+# replaceExt $1 'json'
+
+toJsonPath $1 'json'

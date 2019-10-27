@@ -3,7 +3,7 @@
   "gid": "pi",
   "mirakurunPath": "http+unix://%2Fvar%2Frun%2Fmirakurun.sock/",
 
-  "recordedDir": "./recorded/",
+  "recordedDir": "/media/video_tmp/",
 
   "vaapiEnabled": false,
   "vaapiDevice": "/dev/dri/renderD128",
@@ -59,7 +59,8 @@
   "wuiXFF": false,
   "wuiMdnsAdvertisement": true,
 
-  "recordedFormat": "<date:yymmddHHMM>_<fulltitle>.ts",
+  "recordedFormat": "<date:yyyymmddHHMM>_<fulltitle>.ts",
+  "recordedCommand": "/home/pi/encode/recorded-command",
   "storageLowSpaceThresholdMB": 3000,
   "storageLowSpaceAction": "remove",
   "storageLowSpaceNotifyTo": null,
