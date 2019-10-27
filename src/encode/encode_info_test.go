@@ -1,7 +1,6 @@
 package encode_test
 
 import (
-	"os"
 	"syscall"
 	"testing"
 
@@ -11,12 +10,6 @@ import (
 	"github.com/tett23/kinsro/src/encode"
 	"github.com/tett23/kinsro/src/filesystem"
 )
-
-func TestMain(m *testing.M) {
-	code := m.Run()
-
-	os.Exit(code)
-}
 
 func TestEncode__NewEncodeInfo(t *testing.T) {
 	filesystem.ResetTestFs()

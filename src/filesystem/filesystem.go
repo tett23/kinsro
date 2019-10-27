@@ -32,8 +32,10 @@ func GetRawFs() afero.Fs {
 }
 
 // ResetTestFs ResetTestFs
-func ResetTestFs() {
+func ResetTestFs() afero.Fs {
 	fs = afero.NewMemMapFs()
+
+	return GetFs()
 }
 
 // CopyDotfile CopyDotfile

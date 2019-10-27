@@ -4,8 +4,9 @@ ts2mp4() {
   local PI_HOME=/home/pi
   local TS=$1
   local OUT=$2
-  local WIDTH=$3
-  local HEIGHT=$4
+  local PRESET_PATH=$3
+  local WIDTH=$4
+  local HEIGHT=$5
   local BASE=$(basename $TS .ts)
   [ "${BASE}.ts" = "$(basename $TS)" ] || exit 1
 
@@ -21,7 +22,7 @@ ts2mp4() {
   -vf yadif=1:-1 \
   -aspect 16:9 -s ${WIDTH}x${HEIGHT} \
   -r 30000/1001 \
-  -fpre $PI_HOME/encode/ts2mp4.ffpreset \
+  -fpre $PRESET_PATH \
   -c:a copy -bsf:a aac_adtstoasc \
     "
 
