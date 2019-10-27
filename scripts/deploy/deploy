@@ -4,6 +4,7 @@ main() {
   local MEDIA="10.0.1.110"
   local ENCODE="10.0.1.100"
 
+  deploy_encode "$MEDIA,$ENCODE"
   deploy_bin "$MEDIA,$ENCODE"
   deploy_front "$MEDIA"
 }
@@ -20,6 +21,21 @@ deploy_bin() {
     scp .env.production "$LOGIN:.config/kinsro/.env"
     scp build/kinsro_linux_arm32 "$LOGIN:bin/kinsro"
     ssh $LOGIN "chmod +x ~/bin/kinsro"
+  done
+}
+
+deploy_encode() {
+  local SERVERS=$1
+  local IFS=$',' 
+
+  for ITEM in $SERVERS 
+  do
+    local LOGIN="pi@$ITEM"
+    ssh $LOGIN "mkdir -p ~/encode"
+    scp assets/ts2mp4.sh "$LOGIN:encode/"
+    scp assets/ts2mp4.ffpreset "$LOGIN:encode/"
+    scp assets/recorded-command "$LOGIN:encode/"
+    ssh $LOGIN "chmod +x ~/encode/recorded-command"
   done
 }
 

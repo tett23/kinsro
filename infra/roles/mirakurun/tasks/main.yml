@@ -1,6 +1,5 @@
 - name: include tasks
   include_tasks: '{{item}}.yml'
   with_items:
-    - mount_video_tmp
     - install
-    - recpt1
+    - mount_video_tmp

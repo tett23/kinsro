@@ -37,3 +37,6 @@ func encodeTS(tsPath string) error {
 
 	return nil
 }
+
+// 環境によってshellscriptとpresetのパスをかえる
+// デプロイでシェルとpresetを送る
