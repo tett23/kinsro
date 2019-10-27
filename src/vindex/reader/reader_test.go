@@ -6,16 +6,10 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/pkg/errors"
 	"github.com/tett23/kinsro/src/config"
-	"github.com/tett23/kinsro/src/filesystem"
 	"github.com/tett23/kinsro/src/vindex/reader"
 	"github.com/tett23/kinsro/src/vindex/vindexdata"
 	"github.com/tett23/kinsro/src/vindex/writer"
 )
-
-func TestMain(m *testing.M) {
-	filesystem.CopyDotfile()
-	config.Initialize()
-}
 
 var conf = config.Config{
 	VIndexPath: "/test/vindex",

@@ -1,15 +1,16 @@
-package vindexdata
+package vindexdata_test
 
 import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/tett23/kinsro/src/vindex/vindexdata"
 )
 
 func TestVIndexItemToBinaryAndNewVIndexItemFromBinary(t *testing.T) {
-	item := NewVIndexItem("video1", uint64(20200101), "test.ts")
+	item := vindexdata.NewVIndexItem("video1", uint64(20200101), "test.ts")
 	bin := item.ToBinary()
-	restore, err := NewBinaryIndexItemFromBinary(bin)
+	restore, err := vindexdata.NewBinaryIndexItemFromBinary(bin)
 	if err != nil {
 		t.Error(err)
 	}

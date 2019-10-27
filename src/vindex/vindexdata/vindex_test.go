@@ -1,22 +1,16 @@
-package vindexdata
+package vindexdata_test
 
 import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/tett23/kinsro/src/config"
-	"github.com/tett23/kinsro/src/filesystem"
+	"github.com/tett23/kinsro/src/vindex/vindexdata"
 )
 
-func TestMain(m *testing.M) {
-	filesystem.CopyDotfile()
-	config.Initialize()
-}
-
 func TestVIndexToBinaryAndNewIndexFromBinary(t *testing.T) {
-	vindex := VIndex{
-		NewVIndexItem("video1", uint64(20200101), "test1.ts"),
-		NewVIndexItem("video1", uint64(20200102), "test2.ts"),
+	vindex := vindexdata.VIndex{
+		vindexdata.NewVIndexItem("video1", uint64(20200101), "test1.ts"),
+		vindexdata.NewVIndexItem("video1", uint64(20200102), "test2.ts"),
 	}
 
 	bin, err := vindex.ToBinary()
@@ -24,7 +18,7 @@ func TestVIndexToBinaryAndNewIndexFromBinary(t *testing.T) {
 		t.Error(err)
 	}
 
-	newVindex, err := NewVIndexFromBinary(bin)
+	newVindex, err := vindexdata.NewVIndexFromBinary(bin)
 	if err != nil {
 		t.Error(err)
 	}
