@@ -2,8 +2,9 @@
   remote_user: pi
   gather_facts: yes
   roles:
-    # - role: ffmpeg
-    # - role: node
-    # - role: git
-    # - role: px4
+    - role: ffmpeg
+    - role: node
+    - role: git
+    - role: px4
+    - role: nfs-client
     - role: mirakurun

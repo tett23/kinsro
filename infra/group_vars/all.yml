@@ -1,3 +1,4 @@
 network_mask: '10.0.1.0/24'
+storage_host: '10.0.1.110'
 storages:
   - /media/video1
