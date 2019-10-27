@@ -1,0 +1,19 @@
+- name: 'Install nfs-kernel-server'
+  apt:
+    name: nfs-kernel-server
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  become: yes
+
+- name: 'Update conf file'
+  lineinfile:
+    path: /etc/exports
+    regexp: '^{{ item }}'
+    line: '{{ item }} {{ network_mask }}(rw,sync,no_root_squash,no_subtree_check)'
+  with_items: '{{ storages }}'
+  become: yes
+
+- name: 'Apply nsf conf'
+  command: 'sudo exportfs -ra'
+  become: yes

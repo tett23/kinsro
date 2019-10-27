@@ -3,5 +3,6 @@
   gather_facts: yes
   roles:
     - role: video_storage
+    - role: nfs-server
     - role: samba
     - role: nginx
