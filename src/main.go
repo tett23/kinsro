@@ -35,6 +35,8 @@ func main() {
 		commandFunc = symlink
 	case "rebuild":
 		commandFunc = rebuild
+	case "encode":
+		commandFunc = encodeTS
 	default:
 		panic(fmt.Sprintf("Unexpected command. command=%v", command))
 	}
@@ -131,6 +133,21 @@ func rebuild(conf *config.Config, flagSet *flag.FlagSet) error {
 	err = symlinkAll(conf, flagSet)
 	if err != nil {
 		errors.Cause(err)
+	}
+
+	return nil
+}
+
+func encodeTS(conf *config.Config, flagSet *flag.FlagSet) error {
+	args := flagSet.Args()
+	if len(args) == 0 {
+		return symlinkAll(conf, flagSet)
+	}
+
+	tsPath := args[0]
+	err := commands.EncodeTS(conf, tsPath)
+	if err != nil {
+		return err
 	}
 
 	return nil
