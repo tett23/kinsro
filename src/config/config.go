@@ -9,9 +9,11 @@ import (
 
 // Config config
 type Config struct {
-	Environment  string
-	VIndexPath   string
-	StoragePaths []string
+	Environment      string
+	VIndexPath       string
+	StoragePaths     []string
+	FfmpegScriptPath string
+	FfmpegPresetPath string
 }
 
 var config Config

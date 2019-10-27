@@ -12,22 +12,30 @@ import (
 
 // PartialConfig PartialConfig
 type PartialConfig struct {
-	Environment  *string
-	VIndexPath   *string
-	StoragePaths *[]string
+	Environment      *string
+	VIndexPath       *string
+	StoragePaths     *[]string
+	FfmpegScriptPath *string
+	FfmpegPresetPath *string
 }
 
 // Fulfillded Fulfillded
 func (partialConfig PartialConfig) Fulfillded() bool {
-	return partialConfig.Environment != nil && partialConfig.VIndexPath != nil && partialConfig.StoragePaths != nil
+	return partialConfig.Environment != nil &&
+		partialConfig.VIndexPath != nil &&
+		partialConfig.StoragePaths != nil &&
+		partialConfig.FfmpegScriptPath != nil &&
+		partialConfig.FfmpegPresetPath != nil
 }
 
 // Merge Merge
 func (partialConfig PartialConfig) Merge(updater *PartialConfig) *PartialConfig {
 	ret := PartialConfig{
-		Environment:  partialConfig.Environment,
-		VIndexPath:   partialConfig.VIndexPath,
-		StoragePaths: partialConfig.StoragePaths,
+		Environment:      partialConfig.Environment,
+		VIndexPath:       partialConfig.VIndexPath,
+		StoragePaths:     partialConfig.StoragePaths,
+		FfmpegScriptPath: partialConfig.FfmpegScriptPath,
+		FfmpegPresetPath: partialConfig.FfmpegPresetPath,
 	}
 
 	if updater.Environment != nil {
@@ -38,6 +46,12 @@ func (partialConfig PartialConfig) Merge(updater *PartialConfig) *PartialConfig 
 	}
 	if updater.Environment != nil {
 		ret.StoragePaths = updater.StoragePaths
+	}
+	if updater.FfmpegScriptPath != nil {
+		ret.FfmpegScriptPath = updater.FfmpegScriptPath
+	}
+	if updater.FfmpegPresetPath != nil {
+		ret.FfmpegPresetPath = updater.FfmpegPresetPath
 	}
 
 	return &ret
@@ -62,6 +76,16 @@ func (partialConfig PartialConfig) ToConfig() (*Config, error) {
 	}
 	ret.StoragePaths = *partialConfig.StoragePaths
 
+	if partialConfig.FfmpegScriptPath == nil {
+		return nil, errors.Errorf("PartialConfig.ToConfig: cast error. field=FfmpegScriptPath")
+	}
+	ret.FfmpegScriptPath = *partialConfig.FfmpegScriptPath
+
+	if partialConfig.FfmpegPresetPath == nil {
+		return nil, errors.Errorf("PartialConfig.ToConfig: cast error. field=FfmpegPresetPath")
+	}
+	ret.FfmpegPresetPath = *partialConfig.FfmpegPresetPath
+
 	return &ret, nil
 }
 
@@ -69,24 +93,34 @@ func (partialConfig PartialConfig) ToConfig() (*Config, error) {
 func NewPartialConfigFromEnvironmentVariable() *PartialConfig {
 	partial := PartialConfig{}
 
-	goEnv := os.Getenv("GO_ENV")
-	if goEnv == "" {
-		goEnv = "development"
+	if value := os.Getenv("GO_ENV"); value == "" {
+		value = "development"
+	} else {
+		partial.Environment = &value
 	}
-	partial.Environment = &goEnv
 
-	var vindexPath string = os.Getenv("VINDEX_PATH")
-	if vindexPath == "" {
+	if value := os.Getenv("VINDEX_PATH"); value == "" {
 		partial.VIndexPath = nil
 	} else {
-		partial.VIndexPath = &vindexPath
+		partial.VIndexPath = &value
 	}
 
-	storagePaths := strings.Split(os.Getenv("STORAGE_PATHS"), ",")
-	if len(storagePaths) == 0 {
+	if value := strings.Split(os.Getenv("STORAGE_PATHS"), ","); len(value) == 0 {
 		partial.StoragePaths = nil
 	} else {
-		partial.StoragePaths = &storagePaths
+		partial.StoragePaths = &value
+	}
+
+	if value := os.Getenv("FFSHELL_PATH"); value == "" {
+		partial.FfmpegScriptPath = nil
+	} else {
+		partial.FfmpegScriptPath = &value
+	}
+
+	if value := os.Getenv("FFPRESET_PATH"); value == "" {
+		partial.FfmpegPresetPath = nil
+	} else {
+		partial.FfmpegPresetPath = &value
 	}
 
 	return &partial
@@ -104,6 +138,8 @@ func NewPartialConfigFromFile(fs afero.Fs, path string) (*PartialConfig, error) 
 	}
 
 	buf := bytes.NewBuffer(data)
+	println(path)
+	println(string(data))
 	envMap, err := godotenv.Parse(buf)
 	if err != nil {
 		return nil, err
