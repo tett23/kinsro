@@ -1,0 +1,17 @@
+- name: 'mkdir video_tmp'
+  file:
+    owner: pi
+    group: pi
+    recurse: yes
+    path: /media/video_tmp
+    state: directory
+  become: yes
+
+- name: 'mount video_tmp'
+  mount:
+    name: /media/video_tmp
+    src: '/dev/sda'
+    fstype: ext4
+    opts: 'defaults,users'
+    state: mounted
+  become: yes

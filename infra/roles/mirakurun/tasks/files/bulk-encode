@@ -23,14 +23,13 @@ toJsonPath() {
   echo $JSON_PATH
 }
 
-recorded() {
-  local TS_PATH=$1
-  local CONTENT=$2
-  local JSON_PATH=toJsonPath $TS_PATH
-  local TMP_DIR=$(dirname "$TS_PATH")
+# recorded() {
+#   local TS_PATH=$1
+#   local CONTENT=$2
+#   local JSON_PATH=toJsonPath $TS_PATH 'json' 
 
-  echo "$CONTENT" > $JSON_PATH
-}
+#   echo "$CONTENT" > $JSON_PATH
+# }
 
 encodeOne() {
   local TS_PATH=$1
@@ -74,4 +73,4 @@ appendIndexAndCreateSymlink() {
 # appendIndexAndCreateSymlink
 # replaceExt $1 'json'
 
-toJsonPath $1 'json'
+# toJsonPath $1 'json'

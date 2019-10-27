@@ -25,7 +25,6 @@ ts2mp4() {
   -c:a copy -bsf:a aac_adtstoasc \
     "
 
-
   # -vf yadif=1:-1 \
   # -rc_init_occupancy 2000k -bufsize 2000k -maxrate 5000k -minrate 2000k \
   # -fpre libx264-hq-ts.ffpreset \
@@ -58,6 +57,7 @@ ts2mp4() {
 
   # OUT=sed -e 's/ /\ /g' ${OUT}
   # echo "-y -i $TS ${X264_HIGH_HDTV} '${OUT}'"
+
   ffmpeg -y -i "$TS" $X264_HIGH_HDTV "$OUT"
 
   exit

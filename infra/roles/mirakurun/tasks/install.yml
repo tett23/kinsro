@@ -1,0 +1,86 @@
+- name: 'Is exist pm2'
+  command: which pm2
+  register: is_exist_pm2
+  ignore_errors: True
+
+- name: 'Is exist mirakurun'
+  command: which mirakurun
+  register: is_exist_mirakurun
+  ignore_errors: True
+
+- name: 'Is exist mirakurun process'
+  command: pgrep Mirakurun
+  register: is_exist_mirakurun_process
+  ignore_errors: True
+
+- name: 'Install pm2'
+  command: 'npm install -g pm2'
+  become: yes
+  when: is_exist_pm2 is not success
+
+- name: 'Install mirakurun'
+  command: 'npm install -g mirakurun'
+  become: yes
+  when: is_exist_mirakurun is not success
+
+- name: 'Init mirakurun'
+  command: 'mirakurun init'
+  become: yes
+  when: is_exist_mirakurun is not success
+
+- name: 'Copy tuners.yml'
+  copy:
+    src: ./tuners.yml
+    dest: /usr/local/etc/mirakurun/tuners.yml
+  become: yes
+
+- name: 'Restart mirakurun'
+  command: 'mirakurun restart'
+  become: yes
+  when: is_exist_mirakurun_process is not success
+
+- name: 'Is exist chinachu directory'
+  command: ''
+  when: is_exist_mirakurun_process is not success
+  ignore_errors: True
+
+- name: 'Stat chinachu dir'
+  stat:
+    path: '$HOME/chinachu'
+  register: is_exist_chinachu_dir
+
+- name: 'Clone chinachu'
+  command: 'git clone --depth 1 git@github.com:Chinachu/Chinachu.git ~/chinachu'
+  when: is_exist_chinachu_dir.stat.exists == false
+
+- name: 'Copy config.json'
+  copy:
+    src: ./config.json
+    dest: $HOME/chinachu/config.json
+
+- name: 'Copy rules.json'
+  copy:
+    src: ./rules.json
+    dest: $HOME/chinachu/rules.json
+
+- name: 'Copy processes.json'
+  copy:
+    src: ./processes.json
+    dest: /home/pi/chinachu/processes.json
+  become: yes
+
+- name: 'Register chinachu to pm2'
+  command: 'pm2 start processes.json'
+  args:
+    chdir: /home/pi/chinachu
+  become: yes
+
+- name: 'Save pm2 config'
+  command: 'pm2 save'
+  args:
+    chdir: /home/pi/chinachu
+  become: yes
+
+- name: 'Save pm2 config'
+  command: 'pm2 startup'
+  become: yes

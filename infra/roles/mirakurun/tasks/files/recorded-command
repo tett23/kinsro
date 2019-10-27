@@ -6,10 +6,6 @@ recorded_err() {
   exit 1
 }
 
-# recorded() {
-
-# }
-
 recorded(){
   local TS=$1
   local PROGRAM=$2
@@ -44,5 +40,3 @@ recorded(){
 }
 
 recorded $1 $2
-
-エンコードの必要情報とファイルを生成
