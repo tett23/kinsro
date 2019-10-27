@@ -62,7 +62,7 @@ func TestFindByDigest1(t *testing.T) {
 		t.Error(err)
 	}
 
-	record, err := reader.FindByFilename(&conf, vindex[0].Digest.Hex())
+	record, err := reader.FindByDigest(&conf, vindex[0].Digest.Hex())
 	if err != nil {
 		t.Error(err)
 	}
@@ -81,7 +81,7 @@ func TestFindByDigest2(t *testing.T) {
 		t.Error(err)
 	}
 
-	record, err := reader.FindByFilename(&conf, "a4ddbc2cc9364c45b0012d9acdf32cf0")
+	record, err := reader.FindByDigest(&conf, "a4ddbc2cc9364c45b0012d9acdf32cf0")
 	if err != nil {
 		t.Error(err)
 	}
