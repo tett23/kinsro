@@ -1,0 +1,39 @@
+#! /bin/sh
+
+main() {
+  local MEDIA="10.0.1.110"
+  local ENCODE="10.0.1.100"
+
+  deploy_bin "$MEDIA,$ENCODE"
+  deploy_front "$MEDIA"
+}
+
+deploy_bin() {
+  local SERVERS=$1
+  local IFS=$',' 
+
+  for ITEM in $SERVERS 
+  do
+    local LOGIN="pi@$ITEM"
+    ssh $LOGIN "mkdir -p ~/bin"
+    ssh $LOGIN "mkdir -p ~/.config/kinsro"
+    scp .env.production "$LOGIN:.config/kinsro/.env"
+    scp build/kinsro_linux_arm32 "$LOGIN:bin/kinsro"
+    ssh $LOGIN "chmod +x ~/bin/kinsro"
+  done
+}
+
+deploy_front() {
+  local SERVERS=$1
+  local IFS=$',' 
+
+  for ITEM in $SERVERS 
+  do
+    local LOGIN="pi@$ITEM"
+    ssh $LOGIN "rm -rf /var/www/kinsro/*"
+    scp build/front/* "$LOGIN:/var/www/kinsro"
+    scp assets/index.html "$LOGIN:/var/www/kinsro"
+  done
+}
+
+main

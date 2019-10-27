@@ -20,4 +20,4 @@ build-front: $(FRONT_SOURCES)
 	@yarn run build
 
 deploy: build build-front
-	scripts/deploy
+	scripts/deploy/deploy
