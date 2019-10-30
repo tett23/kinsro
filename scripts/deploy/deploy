@@ -36,6 +36,7 @@ deploy_encode() {
     scp assets/ts2mp4.ffpreset "$LOGIN:encode/"
     scp assets/recorded-command "$LOGIN:encode/"
     ssh $LOGIN "chmod +x ~/encode/recorded-command"
+    scp assets/encode_all.sh "$LOGIN:encode/"
   done
 }
 
