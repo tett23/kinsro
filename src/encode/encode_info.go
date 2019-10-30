@@ -2,6 +2,7 @@ package encode
 
 import (
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -16,9 +17,11 @@ type EncodeInfo struct {
 	StoragePaths      []string
 }
 
+var tsFilenameRegexp = regexp.MustCompile("/\\d{8}.+\\.ts$")
+
 // NewEncodeInfo NewEncodeInfo
 func NewEncodeInfo(conf *config.Config, fs afero.Fs, tsPath string) (*EncodeInfo, error) {
-	if !strings.HasSuffix(tsPath, ".ts") {
+	if !tsFilenameRegexp.MatchString(tsPath) {
 		return nil, errors.Errorf("format error")
 	}
 
@@ -80,7 +83,6 @@ func (info EncodeInfo) Move(statfs Statfs, fs afero.Fs) error {
 			errors.Wrapf(err, "")
 		}
 
-		println("mkdir", enc.Dir(), enc.Src(), enc.Dest())
 		if err := fs.MkdirAll(enc.Dir(), 0755); err != nil {
 			return err
 		}

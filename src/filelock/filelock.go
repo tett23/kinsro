@@ -11,12 +11,12 @@ import (
 // Filelock Filelock
 func Filelock(fs afero.Fs, filepath string, fn func() error) error {
 	if err := Lock(fs, filepath); err != nil {
-		return err
+		return errors.Wrap(err, "Lock failed.")
 	}
 	defer free(fs, filepath)
 
 	if err := fn(); err != nil {
-		return err
+		return errors.Wrap(err, "callback failed.")
 	}
 
 	return nil
@@ -24,14 +24,14 @@ func Filelock(fs afero.Fs, filepath string, fn func() error) error {
 
 // IsFree IsFree
 func IsFree(fs afero.Fs, path string) (bool, error) {
-	ok, _ := afero.Exists(fs, path+".lock")
+	ok, _ := afero.Exists(fs, lockPath(path))
 	if !ok {
 		return true, nil
 	}
 
 	lockTo, err := readLockTimestamp(fs, path)
 	if err != nil {
-		return false, err
+		return false, errors.Wrap(err, "readLockTimestamp failed.")
 	}
 
 	now := time.Now().Unix()
@@ -40,23 +40,23 @@ func IsFree(fs afero.Fs, path string) (bool, error) {
 }
 
 func free(fs afero.Fs, path string) error {
-	ok, _ := afero.Exists(fs, path+".lock")
+	ok, _ := afero.Exists(fs, lockPath(path))
 	if !ok {
 		return nil
 	}
 
-	return fs.Remove(path + ".lock")
+	return fs.Remove(lockPath(path))
 }
 
 func readLockTimestamp(fs afero.Fs, path string) (int64, error) {
-	data, err := afero.ReadFile(fs, path+".lock")
+	data, err := afero.ReadFile(fs, lockPath(path))
 	if err != nil {
-		return -1, err
+		return -1, errors.Wrap(err, "ReadFile failed.")
 	}
 
 	lockTo, err := strconv.Atoi(string(data))
 	if err != nil {
-		return -1, err
+		return -1, errors.Wrap(err, "Atoi failed.")
 	}
 
 	return int64(lockTo), nil
@@ -66,7 +66,7 @@ func readLockTimestamp(fs afero.Fs, path string) (int64, error) {
 func Lock(fs afero.Fs, path string) error {
 	ok, err := IsFree(fs, path)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "IsFree failed.")
 	}
 	if !ok {
 		lockTo, _ := readLockTimestamp(fs, path)
@@ -78,5 +78,9 @@ func Lock(fs afero.Fs, path string) error {
 
 	timestampString := strconv.Itoa(int(lockTo))
 
-	return afero.WriteFile(fs, path+".lock", []byte(timestampString), 0744)
+	return afero.WriteFile(fs, lockPath(path), []byte(timestampString), 0744)
+}
+
+func lockPath(path string) string {
+	return path + ".lock"
 }

@@ -12,8 +12,8 @@ import (
 )
 
 func TestEncode__NewEncodeInfo(t *testing.T) {
-	filesystem.ResetTestFs()
 	t.Run("", func(t *testing.T) {
+		filesystem.ResetTestFs()
 		conf := config.Config{
 			StoragePaths: []string{"/out"},
 		}
@@ -25,6 +25,19 @@ func TestEncode__NewEncodeInfo(t *testing.T) {
 		info, err := encode.NewEncodeInfo(&conf, fs, "/test/201910240105_test.ts")
 		assert.Nil(t, err)
 		assert.NotNil(t, info)
+	})
+
+	t.Run("", func(t *testing.T) {
+		filesystem.ResetTestFs()
+		conf := config.Config{
+			StoragePaths: []string{"/out"},
+		}
+		filesystem.ResetTestFs()
+		fs := filesystem.GetFs()
+
+		info, err := encode.NewEncodeInfo(&conf, fs, "/test/test.ts")
+		assert.NotNil(t, err)
+		assert.Nil(t, info)
 	})
 }
 

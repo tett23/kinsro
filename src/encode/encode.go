@@ -23,8 +23,6 @@ func Encode(conf *config.Config, fs afero.Fs, tsPath string) error {
 		return errors.Wrapf(err, "encode error. ts=%v", tsPath)
 	}
 
-	// エンコードだけで終了。moveは別の責務とする
-
 	if err := info.Move(syscall.Statfs, fs); err != nil {
 		return errors.Wrapf(err, "move error. ts=%v", tsPath)
 	}
@@ -32,31 +30,31 @@ func Encode(conf *config.Config, fs afero.Fs, tsPath string) error {
 	return nil
 }
 
+const tsWidth = "1440"
+const tsHeight = "1080"
+
 // EncodeTSFile EncodeTSFile
 func EncodeTSFile(conf *config.Config, fs afero.Fs, tsPath string) error {
 	commandOptions := []string{
 		conf.FfmpegScriptPath,
 		tsPath,
 		conf.FfmpegPresetPath,
-		"1440",
-		"1080",
+		tsWidth,
+		tsHeight,
 	}
 
-	filelock.Filelock(fs, tsPath, func() error {
-		// HACK: テスト用
-		afero.WriteFile(fs, strings.ReplaceAll(tsPath, ".ts", ".mp4"), []byte{}, 0444)
+	return filelock.Filelock(fs, tsPath, encodeCommand(fs, tsPath, commandOptions))
+}
 
-		// afero.WriteFile(fs, tsPath+"lock", strconv.)
+func encodeCommand(fs afero.Fs, tsPath string, commandOptions []string) func() error {
+	return func() error {
+		// HACK: テスト用
+		afero.WriteFile(fs, strings.ReplaceAll(tsPath, ".ts", ".mp4"), []byte{}, 0644)
+
 		cmd := exec.Command("sh", commandOptions...)
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 
-		if err := cmd.Run(); err != nil {
-			return err
-		}
-
-		return nil
-	})
-
-	return nil
+		return cmd.Run()
+	}
 }

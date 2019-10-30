@@ -15,16 +15,10 @@ func TestEncode__Encode(t *testing.T) {
 		conf := config.GetConfig()
 		fs := filesystem.ResetTestFs()
 		fs.MkdirAll("/test", 0744)
-		afero.WriteFile(fs, "/test/foo.ts", []byte{}, 0744)
+		afero.WriteFile(fs, "/test/20190101_foo.ts", []byte{}, 0744)
 
-		err := encode.EncodeTSFile(conf, fs, "/test/foo.ts")
+		err := encode.Encode(conf, fs, "/test/20190101_foo.ts")
 		assert.Nil(t, err)
-
-		ok, _ := afero.Exists(fs, "/test/foo.ts")
-		assert.Equal(t, ok, true)
-
-		ok, _ = afero.Exists(fs, "/test/foo.mp4")
-		assert.Equal(t, ok, true)
 	})
 }
 
@@ -33,29 +27,29 @@ func TestEncode__EncodeTSFile(t *testing.T) {
 		conf := config.GetConfig()
 		fs := filesystem.ResetTestFs()
 		fs.MkdirAll("/test", 0744)
-		afero.WriteFile(fs, "/test/foo.ts", []byte{}, 0744)
+		afero.WriteFile(fs, "/test/20190101_foo.ts", []byte{}, 0744)
 
-		err := encode.EncodeTSFile(conf, fs, "/test/foo.ts")
+		err := encode.EncodeTSFile(conf, fs, "/test/20190101_foo.ts")
 		assert.Nil(t, err)
 
-		ok, _ := afero.Exists(fs, "/test/foo.ts")
+		ok, _ := afero.Exists(fs, "/test/20190101_foo.ts")
 		assert.True(t, ok)
 
-		ok, _ = afero.Exists(fs, "/test/foo.mp4")
+		ok, _ = afero.Exists(fs, "/test/20190101_foo.mp4")
 		assert.True(t, ok)
 
-		ok, _ = afero.Exists(fs, "/test/foo.ts.lock")
+		ok, _ = afero.Exists(fs, "/test/20190101_foo.ts.lock")
 		assert.False(t, ok)
 	})
 
-	t.Run("", func(t *testing.T) {
+	t.Run("TS locked", func(t *testing.T) {
 		conf := config.GetConfig()
 		fs := filesystem.ResetTestFs()
 		fs.MkdirAll("/test", 0744)
-		afero.WriteFile(fs, "/test/foo.ts", []byte{}, 0744)
-		afero.WriteFile(fs, "/test/foo.ts.lock", []byte("2147483647"), 0744)
+		afero.WriteFile(fs, "/test/20190101_foo.ts", []byte{}, 0744)
+		afero.WriteFile(fs, "/test/20190101_foo.ts.lock", []byte("2147483647"), 0744)
 
-		err := encode.EncodeTSFile(conf, fs, "/test/foo.ts")
+		err := encode.EncodeTSFile(conf, fs, "/test/20190101_foo.ts")
 		assert.NotNil(t, err)
 	})
 }

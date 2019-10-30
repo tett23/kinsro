@@ -20,7 +20,6 @@ func TestEncode__NewEncodeFilePath(t *testing.T) {
 		}
 
 		file, err := encode.NewEncodeFilePath(statfs, "/test", []string{"/hoge", "/fuga"})
-		println(err)
 		assert.NilError(t, err)
 		assert.Equal(t, file.Storage, "/fuga")
 	})
