@@ -19,7 +19,7 @@ func Encode(conf *config.Config, fs afero.Fs, tsPath string) error {
 		return errors.Wrapf(err, "initialize error. ts=%v", tsPath)
 	}
 
-	if err := EncodeTSFile(conf, fs, tsPath); err != nil {
+	if err := EncodeTSFile(conf, fs, info); err != nil {
 		return errors.Wrapf(err, "encode error. ts=%v", tsPath)
 	}
 
@@ -34,16 +34,17 @@ const tsWidth = "1440"
 const tsHeight = "1080"
 
 // EncodeTSFile EncodeTSFile
-func EncodeTSFile(conf *config.Config, fs afero.Fs, tsPath string) error {
+func EncodeTSFile(conf *config.Config, fs afero.Fs, info *EncodeInfo) error {
 	commandOptions := []string{
 		conf.FfmpegScriptPath,
-		tsPath,
+		info.RawPath,
+		info.TSDest(),
 		conf.FfmpegPresetPath,
 		tsWidth,
 		tsHeight,
 	}
 
-	return filelock.Filelock(fs, tsPath, encodeCommand(fs, tsPath, commandOptions))
+	return filelock.Filelock(fs, info.RawPath, encodeCommand(fs, info.RawPath, commandOptions))
 }
 
 func encodeCommand(fs afero.Fs, tsPath string, commandOptions []string) func() error {

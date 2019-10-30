@@ -73,6 +73,11 @@ func (info EncodeInfo) MP4Name() string {
 	return info.Prefix() + ".mp4"
 }
 
+// TSDest TSDest
+func (info EncodeInfo) TSDest() string {
+	return filepath.Join(info.Dir(), info.MP4Name())
+}
+
 // Move Move
 func (info EncodeInfo) Move(statfs Statfs, fs afero.Fs) error {
 	dir := info.Dir()

@@ -28,8 +28,9 @@ func TestEncode__EncodeTSFile(t *testing.T) {
 		fs := filesystem.ResetTestFs()
 		fs.MkdirAll("/test", 0744)
 		afero.WriteFile(fs, "/test/20190101_foo.ts", []byte{}, 0744)
+		info, _ := encode.NewEncodeInfo(conf, fs, "/test/20190101_foo.ts")
 
-		err := encode.EncodeTSFile(conf, fs, "/test/20190101_foo.ts")
+		err := encode.EncodeTSFile(conf, fs, info)
 		assert.Nil(t, err)
 
 		ok, _ := afero.Exists(fs, "/test/20190101_foo.ts")
@@ -48,8 +49,9 @@ func TestEncode__EncodeTSFile(t *testing.T) {
 		fs.MkdirAll("/test", 0744)
 		afero.WriteFile(fs, "/test/20190101_foo.ts", []byte{}, 0744)
 		afero.WriteFile(fs, "/test/20190101_foo.ts.lock", []byte("2147483647"), 0744)
+		info, _ := encode.NewEncodeInfo(conf, fs, "/test/20190101_foo.ts")
 
-		err := encode.EncodeTSFile(conf, fs, "/test/20190101_foo.ts")
+		err := encode.EncodeTSFile(conf, fs, info)
 		assert.NotNil(t, err)
 	})
 }

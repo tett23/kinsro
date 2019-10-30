@@ -51,6 +51,16 @@ func TestEncode__EncodeInfo__Prefix(t *testing.T) {
 	})
 }
 
+func TestEncode__EncodeInfo__TSDest(t *testing.T) {
+	filesystem.ResetTestFs()
+	t.Run("", func(t *testing.T) {
+		info := encode.EncodeInfo{
+			RawPath: "/foo/201910240105_test.ts",
+		}
+		assert.Equal(t, info.TSDest(), "/foo/201910240105_test.mp4")
+	})
+}
+
 func TestEncode__EncodeInfo__MoveFiles(t *testing.T) {
 	filesystem.ResetTestFs()
 	t.Run("", func(t *testing.T) {
