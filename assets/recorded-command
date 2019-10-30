@@ -1,42 +1,21 @@
 #!/bin/sh
 
-PI_HOME=/home/pi
-
-recorded_err() {
-  exit 1
-}
-
 recorded(){
   local TS=$1
   local PROGRAM=$2
+
   local BASE=$(basename "$TS" .ts)
-  local OUT="$BASE.mp4"
   local OUT_JSON="$BASE.json"
-
-  local DATE=$(echo $BASE | awk '{ printf "%d/%d/%d", substr($1, 1, 4), substr($1, 5, 2), substr($1, 7, 2) }')
-  local STORAGE_PARENT=/media/video1/$DATE
-  # local STORAGE_PARENT=/Volumes/video1/$DATE
+  local LOG="$BASE.log"
+  local FINISH="$BASE.finish"
   local TMP_DIR=$(dirname "$TS")
 
-  echo "$PROGRAM" > "$TMP_DIR/$OUT_JSON" 
+  echo "$PROGRAM" > "$TMP_DIR/$OUT_JSON"
+  echo "$PROGRAM" > "$TMP_DIR/$OUT_JSON"
+  echo "home: $HOME" >> /tmp/encode_log
+  echo "user: $USER" >> /tmp/encode_log
 
-  sh $PI_HOME/encode/ts2mp4.sh $TS "$TMP_DIR/$OUT" 1440 1080 || recorded_err 
-
-  local TMP_DIR=$(dirname "$TS")
-  local STORAGE_OUT="$STORAGE_PARENT/$OUT"
-  local STORAGE_OUT_JSON="$STORAGE_PARENT/$OUT_JSON"
-
-  mkdir -p $STORAGE_PARENT
-  echo $STORAGE_PARENT
-  mv "$TMP_DIR/$OUT" "$STORAGE_OUT"
-  echo "$PROGRAM" > "$STORAGE_OUT_JSON" 
-
-  local DIGEST=$(DOTENV_PATH=$PI_HOME/bin/.env kinsro append $STORAGE_OUT)
-
-  ssh -o "StrictHostKeyChecking=no" pi@10.0.1.110 "DOTENV_PATH=bin/.env bin/kinsro symlink $DIGEST"
-  # with_ssh_password "ssh -o '-StrictHostKeyChecking=no' pi@10.0.1.110 'DOTENV_PATH=bin/.env bin/kinsro symlink $DIGEST'" password
-
-  # rm $TS
+  DOTENV_PATH=/home/pi/.config/kinsro/.env /home/pi/bin/kinsro encode $TS > "$TMP_DIR/$LOG"
 }
 
 recorded $1 $2
