@@ -13,18 +13,14 @@ import (
 )
 
 // Encode Encode
-func Encode(conf *config.Config, fs afero.Fs, tsPath string) error {
-	info, err := NewEncodeInfo(conf, fs, tsPath)
-	if err != nil {
-		return errors.Wrapf(err, "initialize error. ts=%v", tsPath)
-	}
+func Encode(conf *config.Config, fs afero.Fs, info *EncodeInfo) error {
 
 	if err := EncodeTSFile(conf, fs, info); err != nil {
-		return errors.Wrapf(err, "encode error. ts=%v", tsPath)
+		return errors.Wrapf(err, "encode error. ts=%v", info.RawPath)
 	}
 
 	if err := info.Move(syscall.Statfs, fs); err != nil {
-		return errors.Wrapf(err, "move error. ts=%v", tsPath)
+		return errors.Wrapf(err, "move error. ts=%v", info.RawPath)
 	}
 
 	return nil

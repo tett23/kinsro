@@ -1,11 +1,16 @@
 package encode
 
 import (
+	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
+	"strings"
 	"syscall"
 
 	"github.com/pkg/errors"
+	"github.com/spf13/afero"
+	"github.com/tett23/kinsro/src/vindex/vindexdata"
 )
 
 // EncodeFilePath EncodeFilePath
@@ -78,6 +83,14 @@ func (item EncodeFilePath) Dest() string {
 	return filepath.Join(item.Dir(), item.Base())
 }
 
+// Date Date
+func (item EncodeFilePath) Date() uint64 {
+	basename := item.Base()
+	num, _ := strconv.Atoi(basename[0:8])
+
+	return uint64(num)
+}
+
 // Dir Dir
 func (item EncodeFilePath) Dir() string {
 	basename := item.Base()
@@ -91,4 +104,31 @@ func (item EncodeFilePath) Dir() string {
 // Base Base
 func (item EncodeFilePath) Base() string {
 	return filepath.Base(item.Path)
+}
+
+// Copy Copy
+func (item EncodeFilePath) Copy(fs afero.Fs) error {
+	src, err := fs.OpenFile(item.Src(), os.O_RDONLY, 0644)
+	if err != nil {
+		return err
+	}
+	defer src.Close()
+
+	return afero.WriteReader(fs, item.Dest(), src)
+}
+
+// ToVIndexItem ToVIndexItem
+func (item EncodeFilePath) ToVIndexItem() (*vindexdata.VIndexItem, error) {
+	if !item.isEncoded() {
+		return nil, errors.Errorf("EncodeFilePath is not mp4. path=%v", item.Path)
+	}
+
+	storageName := filepath.Base(item.Storage)
+	vindexItem := vindexdata.NewVIndexItem(storageName, item.Date(), item.Dest())
+
+	return &vindexItem, nil
+}
+
+func (item EncodeFilePath) isEncoded() bool {
+	return strings.HasSuffix(item.Path, ".mp4")
 }

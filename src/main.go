@@ -90,7 +90,7 @@ func append(conf *config.Config, flagSet *flag.FlagSet) error {
 		return errors.Errorf("ParseFilepath failed. path=%v", path)
 	}
 
-	err = commands.Append(conf, vindexItem)
+	err = commands.AppendToIndex(conf, vindexItem)
 	if err != nil {
 		return err
 	}
@@ -140,10 +140,6 @@ func rebuild(conf *config.Config, flagSet *flag.FlagSet) error {
 
 func encodeTS(conf *config.Config, flagSet *flag.FlagSet) error {
 	args := flagSet.Args()
-	if len(args) == 0 {
-		return symlinkAll(conf, flagSet)
-	}
-
 	tsPath := args[0]
 	err := commands.EncodeTS(conf, tsPath)
 	if err != nil {

@@ -16,8 +16,9 @@ func TestEncode__Encode(t *testing.T) {
 		fs := filesystem.ResetTestFs()
 		fs.MkdirAll("/test", 0744)
 		afero.WriteFile(fs, "/test/20190101_foo.ts", []byte{}, 0744)
+		info, _ := encode.NewEncodeInfo(conf, fs, "/test/20190101_foo.ts")
 
-		err := encode.Encode(conf, fs, "/test/20190101_foo.ts")
+		err := encode.Encode(conf, fs, info)
 		assert.Nil(t, err)
 	})
 }

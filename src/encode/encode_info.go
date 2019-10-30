@@ -15,6 +15,7 @@ type EncodeInfo struct {
 	RawPath           string
 	MetadataFileNames []string
 	StoragePaths      []string
+	Storage           string
 }
 
 var tsFilenameRegexp = regexp.MustCompile("/\\d{8}.+\\.ts$")
@@ -91,7 +92,8 @@ func (info EncodeInfo) Move(statfs Statfs, fs afero.Fs) error {
 		if err := fs.MkdirAll(enc.Dir(), 0755); err != nil {
 			return err
 		}
-		if err := fs.Rename(enc.Src(), enc.Dest()); err != nil {
+
+		if err := enc.Copy(fs); err != nil {
 			return errors.Wrapf(err, "rename failed. src=%v dst=%v", enc.Src(), enc.Dest())
 		}
 	}

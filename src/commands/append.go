@@ -8,8 +8,8 @@ import (
 	"github.com/tett23/kinsro/src/vindex/writer"
 )
 
-// Append Append
-func Append(conf *config.Config, vindexItem *vindexdata.VIndexItem) error {
+// AppendToIndex AppendToIndex
+func AppendToIndex(conf *config.Config, vindexItem *vindexdata.VIndexItem) error {
 	record, err := reader.FindByFilename(conf, vindexItem.Filename)
 	if err != nil {
 		return errors.Errorf("FindByFilename failed. vindex=%+v", vindexItem)

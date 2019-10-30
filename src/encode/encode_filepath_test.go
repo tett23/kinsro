@@ -4,8 +4,10 @@ import (
 	"syscall"
 	"testing"
 
+	"github.com/spf13/afero"
+	"github.com/stretchr/testify/assert"
 	"github.com/tett23/kinsro/src/encode"
-	"gotest.tools/assert"
+	"github.com/tett23/kinsro/src/filesystem"
 )
 
 func TestEncode__NewEncodeFilePath(t *testing.T) {
@@ -20,7 +22,7 @@ func TestEncode__NewEncodeFilePath(t *testing.T) {
 		}
 
 		file, err := encode.NewEncodeFilePath(statfs, "/test", []string{"/hoge", "/fuga"})
-		assert.NilError(t, err)
+		assert.NoError(t, err)
 		assert.Equal(t, file.Storage, "/fuga")
 	})
 
@@ -33,7 +35,7 @@ func TestEncode__NewEncodeFilePath(t *testing.T) {
 		}
 
 		file, err := encode.NewEncodeFilePath(statfs, "/test", []string{"/hoge"})
-		assert.NilError(t, err)
+		assert.NoError(t, err)
 		assert.Equal(t, file.Storage, "/hoge")
 	})
 }
@@ -54,4 +56,52 @@ func TestEncode__EncodeFilePath__Dir(t *testing.T) {
 	}
 
 	assert.Equal(t, item.Dir(), "/bar/2019/10/24")
+}
+
+func TestEncode__EncodeFilePath__Copy(t *testing.T) {
+	fs := filesystem.ResetTestFs()
+	content := "test"
+	afero.WriteFile(fs, "/test/201910240105_test.txt", []byte(content), 0744)
+	item := encode.EncodeFilePath{
+		Path:    "/test/201910240105_test.txt",
+		Storage: "/bar",
+	}
+
+	err := item.Copy(fs)
+	assert.NoError(t, err)
+
+	ok, _ := afero.Exists(fs, item.Src())
+	assert.True(t, ok)
+
+	ok, _ = afero.Exists(fs, item.Dest())
+	assert.True(t, ok)
+
+	actual, _ := afero.ReadFile(fs, item.Dest())
+	assert.Equal(t, string(actual), content)
+}
+
+func TestEncode__EncodeFilePath__ToVIndexItem(t *testing.T) {
+	t.Run("", func(t *testing.T) {
+		filesystem.ResetTestFs()
+		item := encode.EncodeFilePath{
+			Path:    "/test/201910240105_test.mp4",
+			Storage: "/bar",
+		}
+
+		vindexItem, err := item.ToVIndexItem()
+		assert.NoError(t, err)
+		assert.NotNil(t, vindexItem)
+	})
+
+	t.Run("", func(t *testing.T) {
+		filesystem.ResetTestFs()
+		item := encode.EncodeFilePath{
+			Path:    "/test/201910240105_test.txt",
+			Storage: "/bar",
+		}
+
+		vindexItem, err := item.ToVIndexItem()
+		assert.Error(t, err)
+		assert.Nil(t, vindexItem)
+	})
 }
