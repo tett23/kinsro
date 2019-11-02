@@ -30,7 +30,7 @@ func ParseFilepath(storagePaths []string, path string) (*VIndexItem, error) {
 	return NewVIndexItem(filepath.Base(storagePath), date, filepath.Base(path))
 }
 
-func toDate(base, path string) (uint64, error) {
+func toDate(base, path string) (int, error) {
 	pathItems := strings.Split(path[len(base):], "/")
 	year, err := strconv.Atoi(pathItems[1])
 	if err != nil {
@@ -45,7 +45,7 @@ func toDate(base, path string) (uint64, error) {
 		return 0, errors.Wrapf(err, "strconv.Atoi failed. value=%v", pathItems[3])
 	}
 
-	return uint64(year*10000 + month*100 + day), nil
+	return year*10000 + month*100 + day, nil
 }
 
 func parseStoragePath(storagePaths []string, path string) (string, error) {

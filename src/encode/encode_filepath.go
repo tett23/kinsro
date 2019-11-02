@@ -84,11 +84,11 @@ func (item EncodeFilePath) Dest() string {
 }
 
 // Date Date
-func (item EncodeFilePath) Date() uint64 {
+func (item EncodeFilePath) Date() int {
 	basename := item.Base()
 	num, _ := strconv.Atoi(basename[0:8])
 
-	return uint64(num)
+	return num
 }
 
 // Dir Dir

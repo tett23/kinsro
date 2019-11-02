@@ -8,10 +8,10 @@ import (
 )
 
 func TestVIndexToBinaryAndNewIndexFromBinary(t *testing.T) {
-	item1, err := vindexdata.NewVIndexItem("video1", uint64(20200101), "test1.ts")
+	item1, err := vindexdata.NewVIndexItem("video1", 20200101, "test1.ts")
 	assert.NoError(t, err)
 
-	item2, err := vindexdata.NewVIndexItem("video1", uint64(20200102), "test2.ts")
+	item2, err := vindexdata.NewVIndexItem("video1", 20200102, "test2.ts")
 	assert.NoError(t, err)
 
 	vindex := vindexdata.VIndex{*item1, *item2}

@@ -1,6 +1,7 @@
 package vindexdata
 
 import (
+	"bytes"
 	"crypto/md5"
 	"encoding/json"
 	"fmt"
@@ -9,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
+	"github.com/tett23/kinsro/src/intdate"
 	"golang.org/x/text/unicode/norm"
 )
 
@@ -27,10 +29,10 @@ func (digest Digest) Hex() string {
 
 // VIndexItem VIndexItem
 type VIndexItem struct {
-	Filename string `json:"filename" bi_length:"500" bi_type:"string"`
-	Date     uint64 `json:"date" bi_length:"8" bi_type:"uint"`
-	Storage  string `json:"storage" bi_length:"100" bi_type:"string"`
-	Digest   Digest `json:"digest" bi_length:"16" bi_type:"digest"`
+	Filename string          `json:"filename" bi_length:"500" bi_type:"string"`
+	Date     intdate.IntDate `json:"date" bi_length:"4" bi_type:"int"`
+	Storage  string          `json:"storage" bi_length:"100" bi_type:"string"`
+	Digest   Digest          `json:"digest" bi_length:"16" bi_type:"digest"`
 }
 
 // fullpathを格納しないようにする
@@ -39,20 +41,26 @@ type VIndexItem struct {
 // メタデータ書きこみのときはロックに待つオプションを追加する
 
 // NewVIndexItem NewVIndexItem
-func NewVIndexItem(storage string, date uint64, filename string) (*VIndexItem, error) {
+func NewVIndexItem(storage string, date int, filename string) (*VIndexItem, error) {
 	if strings.ContainsRune(storage, filepath.Separator) {
 		return nil, errors.Errorf("Storage must not to includes path separator. %v", storage)
 	}
 	if strings.ContainsRune(filename, filepath.Separator) {
 		return nil, errors.Errorf("Filename must not to includes path separator. %v", filename)
 	}
+	intDate, err := intdate.NewIntDate(date)
+	if err != nil {
+		return nil, errors.Wrap(err, "Invalid date")
+	}
 
 	normalized := norm.NFC.String(filename)
+	source := bytes.Join([][]byte{int2bytes(date, 4), []byte(normalized)}, []byte{})
+
 	ret := VIndexItem{
 		Storage:  storage,
 		Filename: normalized,
-		Date:     date,
-		Digest:   md5.Sum([]byte(normalized)),
+		Date:     intDate,
+		Digest:   md5.Sum(source),
 	}
 
 	return &ret, nil
@@ -78,23 +86,9 @@ func (item VIndexItem) FullPath(vindexPaths []string) (string, error) {
 // Path Path
 func (item VIndexItem) Path() string {
 	return filepath.Join(
-		fmt.Sprintf("%02d", item.year()),
-		fmt.Sprintf("%02d", item.month()),
-		fmt.Sprintf("%02d", item.day()),
+		item.Date.ToPath(),
 		item.Filename,
 	)
-}
-
-func (item VIndexItem) year() int {
-	return int(item.Date / 10000)
-}
-
-func (item VIndexItem) month() int {
-	return int(item.Date/100) % item.year()
-}
-
-func (item VIndexItem) day() int {
-	return int(item.Date % (item.Date / 100))
 }
 
 // HexDigest HexDigest
@@ -136,8 +130,8 @@ func (item VIndexItem) ToBinary() []byte {
 			for i := range tmp {
 				data[i] = tmp[i]
 			}
-		case "uint":
-			tmp := uint2bytes(value.Uint(), 8)
+		case "int":
+			tmp := int2bytes(int(value.Int()), 4)
 			for i := range tmp {
 				data[i] = tmp[i]
 			}
@@ -187,9 +181,9 @@ func NewBinaryIndexItemFromBinary(data []byte) (*VIndexItem, error) {
 			}
 
 			rawValue.FieldByName(pair.Name).SetString(string(value))
-		case "uint":
-			value := bytes2uint(colRawBytes...)
-			rawValue.FieldByName(pair.Name).SetUint(value)
+		case "int":
+			value := bytes2int(colRawBytes...)
+			rawValue.FieldByName(pair.Name).SetInt(value)
 		case "digest":
 			for i := range colRawBytes {
 				rawValue.FieldByName(pair.Name).Index(i).SetUint(uint64(colRawBytes[i]))
