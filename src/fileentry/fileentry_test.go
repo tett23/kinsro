@@ -8,13 +8,35 @@ import (
 	"github.com/tett23/kinsro/src/filesystem"
 )
 
+func TestFileEntry__NewFileEntry(t *testing.T) {
+	t.Run("ok", func(t *testing.T) {
+		actual, err := NewFileEntry("/test.ts")
+		assert.NoError(t, err)
+		assert.NotNil(t, actual)
+	})
+
+	t.Run("error", func(t *testing.T) {
+		t.Run("is not absolute path", func(t *testing.T) {
+			actual, err := NewFileEntry("test.ts")
+			assert.Error(t, err)
+			assert.Nil(t, actual)
+		})
+
+		t.Run("is lock file", func(t *testing.T) {
+			actual, err := NewFileEntry("/test.ts.lock")
+			assert.Error(t, err)
+			assert.Nil(t, actual)
+		})
+	})
+}
+
 func TestFileEntry__FileEntry__IsProcessable(t *testing.T) {
 	path := "/20191102_test.ts"
 
 	t.Run("ok", func(t *testing.T) {
 		fs := filesystem.ResetTestFs()
 		afero.WriteFile(fs, path, []byte{}, 0744)
-		entry := NewFileEntry(path)
+		entry, _ := NewFileEntry(path)
 
 		actual := entry.IsProcessable(fs)
 		assert.True(t, actual)
@@ -23,7 +45,7 @@ func TestFileEntry__FileEntry__IsProcessable(t *testing.T) {
 	t.Run("return false", func(t *testing.T) {
 		t.Run("file does not exists", func(t *testing.T) {
 			fs := filesystem.ResetTestFs()
-			entry := NewFileEntry(path)
+			entry, _ := NewFileEntry(path)
 
 			actual := entry.IsProcessable(fs)
 			assert.False(t, actual)
@@ -32,7 +54,7 @@ func TestFileEntry__FileEntry__IsProcessable(t *testing.T) {
 		t.Run("file locked", func(t *testing.T) {
 			fs := filesystem.ResetTestFs()
 			afero.WriteFile(fs, path+".lock", []byte("2147483647"), 0744)
-			entry := NewFileEntry(path)
+			entry, _ := NewFileEntry(path)
 
 			actual := entry.IsProcessable(fs)
 			assert.False(t, actual)
@@ -44,7 +66,7 @@ func TestFileEntry__FileEntry__Src(t *testing.T) {
 	path := "/20191102_test.ts"
 
 	t.Run("ok", func(t *testing.T) {
-		entry := NewFileEntry(path)
+		entry, _ := NewFileEntry(path)
 
 		actual := entry.Src()
 		assert.Equal(t, actual, entry.rawPath)
@@ -57,7 +79,7 @@ func TestFileEntry__FileEntry__Remove(t *testing.T) {
 	t.Run("ok", func(t *testing.T) {
 		fs := filesystem.ResetTestFs()
 		afero.WriteFile(fs, path, []byte{}, 0744)
-		entry := NewFileEntry(path)
+		entry, _ := NewFileEntry(path)
 
 		err := entry.Remove(fs)
 		assert.NoError(t, err)
@@ -66,7 +88,7 @@ func TestFileEntry__FileEntry__Remove(t *testing.T) {
 	t.Run("error", func(t *testing.T) {
 		t.Run("file does not exists", func(t *testing.T) {
 			fs := filesystem.ResetTestFs()
-			entry := NewFileEntry(path)
+			entry, _ := NewFileEntry(path)
 
 			err := entry.Remove(fs)
 			assert.Error(t, err)
@@ -75,10 +97,29 @@ func TestFileEntry__FileEntry__Remove(t *testing.T) {
 		t.Run("file locked", func(t *testing.T) {
 			fs := filesystem.ResetTestFs()
 			afero.WriteFile(fs, path+".lock", []byte("2147483647"), 0744)
-			entry := NewFileEntry(path)
+			entry, _ := NewFileEntry(path)
 
 			err := entry.Remove(fs)
 			assert.Error(t, err)
+		})
+	})
+}
+
+func TestFileEntry__IsValidFileEntry(t *testing.T) {
+	t.Run("ok", func(t *testing.T) {
+		ok := isValidFileEntry("/test.ts")
+		assert.True(t, ok)
+	})
+
+	t.Run("error", func(t *testing.T) {
+		t.Run("is not absolute path", func(t *testing.T) {
+			ok := isValidFileEntry("test.ts")
+			assert.False(t, ok)
+		})
+
+		t.Run("is lock file", func(t *testing.T) {
+			ok := isValidFileEntry("/test.ts.lock")
+			assert.False(t, ok)
 		})
 	})
 }

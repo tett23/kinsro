@@ -1,6 +1,9 @@
 package fileentry
 
 import (
+	"path/filepath"
+	"strings"
+
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/tett23/kinsro/src/filelock"
@@ -12,12 +15,16 @@ type FileEntry struct {
 }
 
 // NewFileEntry NewFileEntry
-func NewFileEntry(path string) *FileEntry {
+func NewFileEntry(path string) (*FileEntry, error) {
+	if !isValidFileEntry(path) {
+		return nil, errors.Errorf("Invalid path. path=%v", path)
+	}
+
 	ret := FileEntry{
 		rawPath: path,
 	}
 
-	return &ret
+	return &ret, nil
 }
 
 // Src Src
@@ -52,4 +59,17 @@ func (entry FileEntry) isFree(fs afero.Fs) bool {
 	ok, err := filelock.IsFree(fs, entry.rawPath)
 
 	return ok && err == nil
+}
+
+// isValidFileEntry isValidFileEntry
+func isValidFileEntry(path string) bool {
+	if strings.HasSuffix(path, ".lock") {
+		return false
+	}
+
+	if !filepath.IsAbs(path) {
+		return false
+	}
+
+	return true
 }
