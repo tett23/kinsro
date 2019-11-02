@@ -2,12 +2,15 @@ package mpegts
 
 import (
 	"fmt"
+	"path/filepath"
 	"regexp"
+	"strconv"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/tett23/kinsro/src/fileentry"
-	"github.com/tett23/kinsro/src/fileentry/metafile"
+	"github.com/tett23/kinsro/src/fileentry/entrygroup"
+	"github.com/tett23/kinsro/src/intdate"
 )
 
 // MpegTS MpegTS
@@ -41,27 +44,29 @@ func (ts MpegTS) Dest() string {
 	return src[0:len(src)-3] + ".mp4"
 }
 
-// MetaFiles MetaFiles
-func (ts MpegTS) MetaFiles(fs afero.Fs) ([]metafile.MetaFile, error) {
-	src := ts.Src()
-	excludeExt := src[0 : len(src)-3]
-
-	var ret []metafile.MetaFile
-	matches, err := afero.Glob(fs, excludeExt+"*")
+// ToEntryGroup ToEntryGroup
+func (ts MpegTS) ToEntryGroup(fs afero.Fs) (*entrygroup.EntryGroup, error) {
+	date, err := ts.ToIntDate()
 	if err != nil {
-		return ret, errors.Wrapf(err, "Glob error. path=%v", excludeExt)
+		return nil, err
 	}
 
-	for i := range matches {
-		entry, err := metafile.NewMetaFile(matches[i])
-		if err != nil {
-			continue
-		}
+	return entrygroup.NewEntryGroupFromTSPath(fs, date, ts.Src())
+}
 
-		ret = append(ret, *entry)
+// ToIntDate ToIntDate
+func (ts MpegTS) ToIntDate() (intdate.IntDate, error) {
+	base := filepath.Base(ts.Src())
+	if len(base) < 8 {
+		return -1, errors.Errorf("Atoi failed. path=%v", base)
 	}
 
-	return ret, nil
+	date, err := strconv.Atoi(base[0:8])
+	if date == 0 || err != nil {
+		return -1, errors.Wrapf(err, "Atoi failed. path=%v", base)
+	}
+
+	return intdate.NewIntDate(date)
 }
 
 func isMpegTSPath(path string) bool {

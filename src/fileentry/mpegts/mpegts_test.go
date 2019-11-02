@@ -3,10 +3,10 @@ package mpegts
 import (
 	"testing"
 
-	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
-	"github.com/tett23/kinsro/src/fileentry/metafile"
+	"github.com/tett23/kinsro/src/fileentry"
 	"github.com/tett23/kinsro/src/filesystem"
+	"github.com/tett23/kinsro/src/intdate"
 )
 
 func TestMpegTS__NewMpegTS(t *testing.T) {
@@ -49,38 +49,63 @@ func TestMpegTS__MpegTS__Dest(t *testing.T) {
 	})
 }
 
-func TestMpegTS__MpegTS__MetaFiles(t *testing.T) {
+func TestMpegTS__MpegTS__ToEntryGroup(t *testing.T) {
 	path := "/media/video_tmp/20191102_test.ts"
-	createFiles := func(fs afero.Fs, files []string) {
-		for i := range files {
-			afero.WriteFile(fs, files[i], []byte{}, 0644)
-		}
-	}
 
 	t.Run("ok", func(t *testing.T) {
 		fs := filesystem.ResetTestFs()
 		ts, _ := NewMpegTS(path)
-		createFiles(fs, []string{
-			path,
-			"/media/video_tmp/20191102_test.ts.lock",
-			"/media/video_tmp/20191102_test.mp4",
-			"/media/video_tmp/20191102_test.json",
-			"/media/video_tmp/20191102_test.log",
-			"/media/video_tmp/20191103_test.log",
-		})
 
-		actual, err := ts.MetaFiles(fs)
+		actual, err := ts.ToEntryGroup(fs)
 		assert.NoError(t, err)
-		a, _ := metafile.NewMetaFile("/media/video_tmp/20191102_test.json")
-		b, _ := metafile.NewMetaFile("/media/video_tmp/20191102_test.log")
-		assert.Equal(t, actual, []metafile.MetaFile{*a, *b})
+		assert.NotNil(t, actual)
 	})
 
-	t.Run("return false", func(t *testing.T) {
-		t.Run("invalid ext", func(t *testing.T) {
+	t.Run("error", func(t *testing.T) {
+		t.Run("invalid date", func(t *testing.T) {
+			fs := filesystem.ResetTestFs()
+			entry, _ := fileentry.NewFileEntry("/media/video_tmp/hogehoge.ts")
+			ts := MpegTS{
+				FileEntry: entry,
+			}
+
+			actual, err := ts.ToEntryGroup(fs)
+			assert.Error(t, err)
+			assert.Nil(t, actual)
+		})
+
+	})
+}
+
+func TestMpegTS__MpegTS__ToIntDate(t *testing.T) {
+	t.Run("ok", func(t *testing.T) {
+		ts, _ := NewMpegTS("/media/video_tmp/20191102_test.ts")
+
+		actual, err := ts.ToIntDate()
+		assert.NoError(t, err)
+		assert.NotNil(t, actual, intdate.IntDate(20191102))
+	})
+
+	t.Run("error", func(t *testing.T) {
+		t.Run("invalid filename", func(t *testing.T) {
+			entry, _ := fileentry.NewFileEntry("/media/video_tmp/test.ts")
+			ts := MpegTS{
+				FileEntry: entry,
+			}
+
+			_, err := ts.ToIntDate()
+			assert.Error(t, err)
 		})
 
 		t.Run("invalid filename", func(t *testing.T) {
+			entry, _ := fileentry.NewFileEntry("/media/video_tmp/hogehoge.ts")
+			ts := MpegTS{
+				FileEntry: entry,
+			}
+
+			actual, err := ts.ToIntDate()
+			assert.Error(t, err)
+			assert.Equal(t, actual, intdate.IntDate(-1))
 		})
 	})
 }

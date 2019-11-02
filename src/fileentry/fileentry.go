@@ -7,6 +7,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/tett23/kinsro/src/filelock"
+	"github.com/tett23/kinsro/src/intdate"
 )
 
 // FileEntry FileEntry
@@ -27,9 +28,26 @@ func NewFileEntry(path string) (*FileEntry, error) {
 	return &ret, nil
 }
 
+// NewFileEntryFromEntry NewFileEntryFromEntry
+func NewFileEntryFromEntry(storagePath string, date intdate.IntDate, entry *FileEntry) (*FileEntry, error) {
+	path := filepath.Join(storagePath, date.ToPath(), entry.Base())
+
+	return NewFileEntry(path)
+}
+
 // Src Src
 func (entry FileEntry) Src() string {
 	return entry.rawPath
+}
+
+// Base Base
+func (entry FileEntry) Base() string {
+	return filepath.Base(entry.rawPath)
+}
+
+// Ext Ext
+func (entry FileEntry) Ext() string {
+	return filepath.Ext(entry.rawPath)
 }
 
 // Remove Remove
