@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"reflect"
+	"strconv"
 
 	"github.com/pkg/errors"
 	"golang.org/x/text/unicode/norm"
@@ -32,6 +33,11 @@ type VIndexItem struct {
 	Digest   Digest `json:"digest" bi_length:"16" bi_type:"digest"`
 }
 
+// fullpathを格納しないようにする
+// stat サイズを格納
+// メタデータ先頭を格納
+// メタデータ書きこみのときはロックに待つオプションを追加する
+
 // NewVIndexItem NewVIndexItem
 func NewVIndexItem(storage string, date uint64, filename string) VIndexItem {
 	normalized := norm.NFC.String(filename)
@@ -42,6 +48,40 @@ func NewVIndexItem(storage string, date uint64, filename string) VIndexItem {
 		Date:     date,
 		Digest:   md5.Sum([]byte(normalized)),
 	}
+}
+
+// FullPath FullPath
+func (item VIndexItem) FullPath(vindexPaths []string) (string, error) {
+	var vindexPath string
+	for i := range vindexPaths {
+		if filepath.Base(vindexPaths[i]) == item.Storage {
+			vindexPath = vindexPaths[i]
+			break
+		}
+	}
+
+	if vindexPath == "" {
+		return "", errors.Errorf("Storage does not configured. storage=%v", item.Storage)
+	}
+
+	return filepath.Join(vindexPath, item.Path()), nil
+}
+
+// Path Path
+func (item VIndexItem) Path() string {
+	return filepath.Join(strconv.Itoa(item.year()), strconv.Itoa(item.donth()), strconv.Itoa(item.day()), item.Filename)
+}
+
+func (item VIndexItem) year() int {
+	return int(item.Date / 10000)
+}
+
+func (item VIndexItem) donth() int {
+	return int(item.Date/100) % item.year()
+}
+
+func (item VIndexItem) day() int {
+	return int(item.Date % (item.Date / 100))
 }
 
 // HexDigest HexDigest
