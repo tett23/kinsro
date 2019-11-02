@@ -62,6 +62,9 @@ func readLockTimestamp(fs afero.Fs, path string) (int64, error) {
 	return int64(lockTo), nil
 }
 
+// LockTo LockTo
+const LockTo = 60 * 60 * 24
+
 // Lock Lock
 func Lock(fs afero.Fs, path string) error {
 	ok, err := IsFree(fs, path)
@@ -74,7 +77,7 @@ func Lock(fs afero.Fs, path string) error {
 	}
 
 	now := time.Now().Unix()
-	lockTo := now + 60*60*24
+	lockTo := now + LockTo
 
 	timestampString := strconv.Itoa(int(lockTo))
 
