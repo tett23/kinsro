@@ -1,15 +1,17 @@
 package metafile
 
+import "github.com/tett23/kinsro/src/fileentry"
+
 // MetaFile MetaFile
 type MetaFile struct {
-	rawPath string
+	*fileentry.FileEntry
 }
 
 // NewMetaFile NewMetaFile
-func NewMetaFile(path string) (*MetaFile, error) {
+func NewMetaFile(path string) *MetaFile {
 	ret := MetaFile{
-		rawPath: path,
+		FileEntry: fileentry.NewFileEntry(path),
 	}
 
-	return &ret, nil
+	return &ret
 }

@@ -3,9 +3,7 @@ package mpegts
 import (
 	"testing"
 
-	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
-	"github.com/tett23/kinsro/src/filesystem"
 )
 
 func TestMpegTS__NewMpegTS(t *testing.T) {
@@ -30,49 +28,6 @@ func TestMpegTS__NewMpegTS(t *testing.T) {
 	})
 }
 
-func TestMpegTS__MpegTS__IsEncodable(t *testing.T) {
-	tsPath := "/20191102_test.ts"
-
-	t.Run("ok", func(t *testing.T) {
-		fs := filesystem.ResetTestFs()
-		afero.WriteFile(fs, tsPath, []byte{}, 0744)
-		ts, _ := NewMpegTS(tsPath)
-
-		actual := ts.IsEncodable(fs)
-		assert.True(t, actual)
-	})
-
-	t.Run("return false", func(t *testing.T) {
-		t.Run("file does not exists", func(t *testing.T) {
-			fs := filesystem.ResetTestFs()
-			ts, _ := NewMpegTS(tsPath)
-
-			actual := ts.IsEncodable(fs)
-			assert.False(t, actual)
-		})
-
-		t.Run("file locked", func(t *testing.T) {
-			fs := filesystem.ResetTestFs()
-			afero.WriteFile(fs, tsPath+".lock", []byte("2147483647"), 0744)
-			ts, _ := NewMpegTS(tsPath)
-
-			actual := ts.IsEncodable(fs)
-			assert.False(t, actual)
-		})
-	})
-}
-
-func TestMpegTS__MpegTS__Src(t *testing.T) {
-	tsPath := "/20191102_test.ts"
-
-	t.Run("ok", func(t *testing.T) {
-		ts, _ := NewMpegTS(tsPath)
-
-		actual := ts.Src()
-		assert.Equal(t, actual, ts.rawPath)
-	})
-}
-
 func TestMpegTS__MpegTS__Dest(t *testing.T) {
 	tsPath := "/20191102_test.ts"
 
@@ -81,38 +36,6 @@ func TestMpegTS__MpegTS__Dest(t *testing.T) {
 
 		actual := ts.Dest()
 		assert.Equal(t, actual, "/20191102_test.mp4")
-	})
-}
-
-func TestMpegTS__MpegTS__Remove(t *testing.T) {
-	tsPath := "/20191102_test.ts"
-
-	t.Run("ok", func(t *testing.T) {
-		fs := filesystem.ResetTestFs()
-		afero.WriteFile(fs, tsPath, []byte{}, 0744)
-		ts, _ := NewMpegTS(tsPath)
-
-		err := ts.Remove(fs)
-		assert.NoError(t, err)
-	})
-
-	t.Run("error", func(t *testing.T) {
-		t.Run("file does not exists", func(t *testing.T) {
-			fs := filesystem.ResetTestFs()
-			ts, _ := NewMpegTS(tsPath)
-
-			err := ts.Remove(fs)
-			assert.Error(t, err)
-		})
-
-		t.Run("file locked", func(t *testing.T) {
-			fs := filesystem.ResetTestFs()
-			afero.WriteFile(fs, tsPath+".lock", []byte("2147483647"), 0744)
-			ts, _ := NewMpegTS(tsPath)
-
-			err := ts.Remove(fs)
-			assert.Error(t, err)
-		})
 	})
 }
 
