@@ -41,8 +41,17 @@ func TestVIndex__VIndexItem__FullPath(t *testing.T) {
 }
 
 func TestVIndex__VIndexItem__Path(t *testing.T) {
-	item, _ := vindexdata.NewVIndexItem("video1", uint64(20201231), "test.mp4")
+	t.Run("returns path string", func(t *testing.T) {
+		item, _ := vindexdata.NewVIndexItem("video1", uint64(20201231), "test.mp4")
 
-	actual := item.Path()
-	assert.Equal(t, actual, "2020/12/31/test.mp4")
+		actual := item.Path()
+		assert.Equal(t, actual, "2020/12/31/test.mp4")
+	})
+
+	t.Run("pad with zero", func(t *testing.T) {
+		item, _ := vindexdata.NewVIndexItem("video1", uint64(20200101), "test.mp4")
+
+		actual := item.Path()
+		assert.Equal(t, actual, "2020/01/01/test.mp4")
+	})
 }

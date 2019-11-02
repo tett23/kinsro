@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"path/filepath"
 	"reflect"
-	"strconv"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -78,14 +77,19 @@ func (item VIndexItem) FullPath(vindexPaths []string) (string, error) {
 
 // Path Path
 func (item VIndexItem) Path() string {
-	return filepath.Join(strconv.Itoa(item.year()), strconv.Itoa(item.donth()), strconv.Itoa(item.day()), item.Filename)
+	return filepath.Join(
+		fmt.Sprintf("%02d", item.year()),
+		fmt.Sprintf("%02d", item.month()),
+		fmt.Sprintf("%02d", item.day()),
+		item.Filename,
+	)
 }
 
 func (item VIndexItem) year() int {
 	return int(item.Date / 10000)
 }
 
-func (item VIndexItem) donth() int {
+func (item VIndexItem) month() int {
 	return int(item.Date/100) % item.year()
 }
 
