@@ -11,8 +11,8 @@ import (
 
 var filenameRe = regexp.MustCompile("\\d{4}/\\d{2}/\\d{2}/.+\\.mp4$")
 
-// ParseFilepath ParseFilepath
-func ParseFilepath(storagePaths []string, path string) (*VIndexItem, error) {
+// ParseFullFilepath ParseFullFilepath
+func ParseFullFilepath(storagePaths []string, path string) (*VIndexItem, error) {
 	if !filenameRe.MatchString(path) {
 		return nil, errors.Errorf("MatchString failed. path=%v", path)
 	}

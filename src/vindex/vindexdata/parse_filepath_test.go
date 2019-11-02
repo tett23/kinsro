@@ -10,7 +10,7 @@ func TestVIndexData__ParseFilepath(t *testing.T) {
 	t.Run("ok", func(t *testing.T) {
 		path := "/test/2019/10/10/test.mp4"
 		storagePaths := []string{"/test"}
-		actual, err := ParseFilepath(storagePaths, path)
+		actual, err := ParseFullFilepath(storagePaths, path)
 		assert.NoError(t, err)
 
 		expected, err := NewVIndexItem("test", 20191010, "test.mp4")
@@ -22,7 +22,7 @@ func TestVIndexData__ParseFilepath(t *testing.T) {
 		path := "/test/2019/10/10/test.ts"
 		storagePaths := []string{"/test"}
 
-		actual, err := ParseFilepath(storagePaths, path)
+		actual, err := ParseFullFilepath(storagePaths, path)
 		assert.Error(t, err)
 		assert.Nil(t, actual)
 	})
@@ -31,7 +31,7 @@ func TestVIndexData__ParseFilepath(t *testing.T) {
 		path := "/test/2019/10/10/test.mp4"
 		storagePaths := []string{""}
 
-		actual, err := ParseFilepath(storagePaths, path)
+		actual, err := ParseFullFilepath(storagePaths, path)
 		assert.Error(t, err)
 		assert.Nil(t, actual)
 	})
@@ -40,7 +40,7 @@ func TestVIndexData__ParseFilepath(t *testing.T) {
 		path := "/test/2019/10/10/test.ts"
 		storagePaths := []string{"/hoge"}
 
-		actual, err := ParseFilepath(storagePaths, path)
+		actual, err := ParseFullFilepath(storagePaths, path)
 		assert.Error(t, err)
 		assert.Nil(t, actual)
 	})

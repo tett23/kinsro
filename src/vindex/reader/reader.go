@@ -1,84 +1,69 @@
 package reader
 
 import (
-	"crypto/md5"
-	"fmt"
-	"os"
+	"io"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/tett23/kinsro/src/config"
-	"github.com/tett23/kinsro/src/filesystem"
 	"github.com/tett23/kinsro/src/vindex/vindexdata"
 )
 
 // ReadAll ReadAll
-func ReadAll(vindexPath string) (vindexdata.VIndex, error) {
-	fs := filesystem.GetFs()
-
-	_, err := fs.Stat(vindexPath)
-	if err != nil {
-		return vindexdata.VIndex{}, err
-	}
-
+func ReadAll(fs afero.Fs, vindexPath string) (vindexdata.VIndex, error) {
 	bytes, err := afero.ReadFile(fs, vindexPath)
 	if err != nil {
-		return vindexdata.VIndex{}, err
+		return nil, err
 	}
-	//
+
 	vindex, err := vindexdata.NewVIndexFromBinary(bytes)
 	if err != nil {
-		return vindexdata.VIndex{}, err
+		return nil, err
 	}
 
 	return vindex, nil
 }
 
-// FindByFilename FindByFilename
-func FindByFilename(conf *config.Config, filename string) (*vindexdata.VIndexItem, error) {
-	digest := md5.Sum([]byte(filename))
-	vindexItem, err := FindByDigest(conf, fmt.Sprintf("%x", digest))
+// FindByFullPath FindByFullPath
+func FindByFullPath(conf *config.Config, fs afero.Fs, path string) (*vindexdata.VIndexItem, bool, error) {
+	vindexItem, err := vindexdata.ParseFullFilepath(conf.StoragePaths, path)
 	if err != nil {
-		return nil, errors.Wrapf(err, "reader.FindByFilename failed. filename=%v", filename)
+		return nil, false, err
 	}
 
-	return vindexItem, nil
+	return FindByDigest(conf, fs, vindexItem.HexDigest())
 }
 
 // FindByDigest FindByDigest
-func FindByDigest(conf *config.Config, digest string) (*vindexdata.VIndexItem, error) {
-	fs := filesystem.GetFs()
-
-	f, err := fs.OpenFile(conf.VIndexPath, os.O_RDONLY, 0644)
+func FindByDigest(conf *config.Config, fs afero.Fs, digest string) (*vindexdata.VIndexItem, bool, error) {
+	rr, err := NewAbstructReaderFromFile(fs, conf.VIndexPath)
 	if err != nil {
-		return nil, errors.Wrap(err, "OpenFile failed.")
+		return nil, false, errors.Wrap(err, "OpenFile failed.")
 	}
-	defer f.Close()
-
-	stat, err := f.Stat()
-	if err != nil {
-		return nil, errors.Wrap(err, "Stat failed")
-	}
+	defer rr.Close()
 
 	rowLen := vindexdata.RowLength()
+	i := int64(0)
 	data := make([]byte, rowLen)
-	fileSize := stat.Size()
-	fileLen := fileSize / rowLen
-	for i := int64(0); i < fileLen; i++ {
-		_, err = f.ReadAt(data, i*rowLen)
-		if err != nil {
-			return nil, errors.Wrap(err, "ReadAt failed")
+	for true {
+		_, err = rr.ReadAt(data, i*rowLen)
+		if err == io.EOF {
+			return nil, false, nil
 		}
+		if err != nil {
+			return nil, false, errors.Wrap(err, "ReadAt failed")
+		}
+		i++
 
 		vindexItem, err := vindexdata.NewBinaryIndexItemFromBinary(data)
 		if err != nil {
-			return nil, errors.Wrap(err, "NewBinaryIndexItemFromBinary failed")
+			return nil, false, err
 		}
 
 		if vindexItem.HexDigest() == digest {
-			return vindexItem, nil
+			return vindexItem, true, nil
 		}
 	}
 
-	return nil, nil
+	return nil, false, nil
 }
