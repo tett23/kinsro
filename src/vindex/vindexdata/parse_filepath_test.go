@@ -3,49 +3,45 @@ package vindexdata
 import (
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
+	"github.com/stretchr/testify/assert"
 )
 
-func TestParseFilepath1(t *testing.T) {
-	path := "/test/2019/10/10/test.mp4"
-	storagePaths := []string{"/test"}
-	actual, err := ParseFilepath(storagePaths, path)
-	if err != nil {
-		t.Error(err)
-	}
+func TestVIndexData__ParseFilepath(t *testing.T) {
+	t.Run("ok", func(t *testing.T) {
+		path := "/test/2019/10/10/test.mp4"
+		storagePaths := []string{"/test"}
+		actual, err := ParseFilepath(storagePaths, path)
+		assert.NoError(t, err)
 
-	expected := NewVIndexItem("test", 20191010, "/test/2019/10/10/test.mp4")
-	if diff := cmp.Diff(actual, &expected); diff != "" {
-		t.Errorf(diff)
-	}
-}
+		expected, err := NewVIndexItem("test", 20191010, "test.mp4")
+		assert.NoError(t, err)
+		assert.Equal(t, actual, expected)
+	})
 
-func TestParseFilepath2(t *testing.T) {
-	path := "/test/2019/10/10/test.mp4"
-	storagePaths := []string{""}
-	_, err := ParseFilepath(storagePaths, path)
+	t.Run("when passed invalid ext", func(t *testing.T) {
+		path := "/test/2019/10/10/test.ts"
+		storagePaths := []string{"/test"}
 
-	if err == nil {
-		t.Fail()
-	}
-}
+		actual, err := ParseFilepath(storagePaths, path)
+		assert.Error(t, err)
+		assert.Nil(t, actual)
+	})
 
-func TestParseFilepath3(t *testing.T) {
-	path := "/test/2019/10/10/test.ts"
-	storagePaths := []string{"/test"}
-	_, err := ParseFilepath(storagePaths, path)
+	t.Run("returns error when storage not found", func(t *testing.T) {
+		path := "/test/2019/10/10/test.mp4"
+		storagePaths := []string{""}
 
-	if err == nil {
-		t.Fail()
-	}
-}
+		actual, err := ParseFilepath(storagePaths, path)
+		assert.Error(t, err)
+		assert.Nil(t, actual)
+	})
 
-func TestParseFilepath4(t *testing.T) {
-	path := "/test/2019/10/10/test.ts"
-	storagePaths := []string{"/hoge"}
-	_, err := ParseFilepath(storagePaths, path)
+	t.Run("returns error when storage not found", func(t *testing.T) {
+		path := "/test/2019/10/10/test.ts"
+		storagePaths := []string{"/hoge"}
 
-	if err == nil {
-		t.Fail()
-	}
+		actual, err := ParseFilepath(storagePaths, path)
+		assert.Error(t, err)
+		assert.Nil(t, actual)
+	})
 }

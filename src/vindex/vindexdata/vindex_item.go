@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"strconv"
+	"strings"
 
 	"github.com/pkg/errors"
 	"golang.org/x/text/unicode/norm"
@@ -39,15 +40,23 @@ type VIndexItem struct {
 // メタデータ書きこみのときはロックに待つオプションを追加する
 
 // NewVIndexItem NewVIndexItem
-func NewVIndexItem(storage string, date uint64, filename string) VIndexItem {
-	normalized := norm.NFC.String(filename)
+func NewVIndexItem(storage string, date uint64, filename string) (*VIndexItem, error) {
+	if strings.ContainsRune(storage, filepath.Separator) {
+		return nil, errors.Errorf("Storage must not to includes path separator. %v", storage)
+	}
+	if strings.ContainsRune(filename, filepath.Separator) {
+		return nil, errors.Errorf("Filename must not to includes path separator. %v", filename)
+	}
 
-	return VIndexItem{
+	normalized := norm.NFC.String(filename)
+	ret := VIndexItem{
 		Storage:  storage,
 		Filename: normalized,
 		Date:     date,
 		Digest:   md5.Sum([]byte(normalized)),
 	}
+
+	return &ret, nil
 }
 
 // FullPath FullPath

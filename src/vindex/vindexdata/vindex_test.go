@@ -3,27 +3,23 @@ package vindexdata_test
 import (
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
+	"github.com/stretchr/testify/assert"
 	"github.com/tett23/kinsro/src/vindex/vindexdata"
 )
 
 func TestVIndexToBinaryAndNewIndexFromBinary(t *testing.T) {
-	vindex := vindexdata.VIndex{
-		vindexdata.NewVIndexItem("video1", uint64(20200101), "test1.ts"),
-		vindexdata.NewVIndexItem("video1", uint64(20200102), "test2.ts"),
-	}
+	item1, err := vindexdata.NewVIndexItem("video1", uint64(20200101), "test1.ts")
+	assert.NoError(t, err)
+
+	item2, err := vindexdata.NewVIndexItem("video1", uint64(20200102), "test2.ts")
+	assert.NoError(t, err)
+
+	vindex := vindexdata.VIndex{*item1, *item2}
 
 	bin, err := vindex.ToBinary()
-	if err != nil {
-		t.Error(err)
-	}
+	assert.NoError(t, err)
 
 	newVindex, err := vindexdata.NewVIndexFromBinary(bin)
-	if err != nil {
-		t.Error(err)
-	}
-
-	if diff := cmp.Diff(vindex, newVindex); diff != "" {
-		t.Errorf(diff)
-	}
+	assert.NoError(t, err)
+	assert.Equal(t, vindex, newVindex)
 }

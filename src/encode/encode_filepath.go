@@ -124,9 +124,12 @@ func (item EncodeFilePath) ToVIndexItem() (*vindexdata.VIndexItem, error) {
 	}
 
 	storageName := filepath.Base(item.Storage)
-	vindexItem := vindexdata.NewVIndexItem(storageName, item.Date(), item.Dest())
+	vindexItem, err := vindexdata.NewVIndexItem(storageName, item.Date(), item.Base())
+	if err != nil {
+		return nil, err
+	}
 
-	return &vindexItem, nil
+	return vindexItem, nil
 }
 
 func (item EncodeFilePath) isEncoded() bool {

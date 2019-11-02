@@ -8,4 +8,6 @@ import (
 
 func TestMain(m *testing.M) {
 	tests.Setup()
+
+	m.Run()
 }

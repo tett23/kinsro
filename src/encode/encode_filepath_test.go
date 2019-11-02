@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/tett23/kinsro/src/encode"
 	"github.com/tett23/kinsro/src/filesystem"
+	"github.com/tett23/kinsro/src/vindex/vindexdata"
 )
 
 func TestEncode__NewEncodeFilePath(t *testing.T) {
@@ -84,20 +85,22 @@ func TestEncode__EncodeFilePath__ToVIndexItem(t *testing.T) {
 	t.Run("", func(t *testing.T) {
 		filesystem.ResetTestFs()
 		item := encode.EncodeFilePath{
-			Path:    "/test/201910240105_test.mp4",
-			Storage: "/bar",
+			Path:    "201910240105_test.mp4",
+			Storage: "bar",
 		}
 
-		vindexItem, err := item.ToVIndexItem()
+		expected, _ := vindexdata.NewVIndexItem("bar", 20191024, "201910240105_test.mp4")
+
+		actual, err := item.ToVIndexItem()
 		assert.NoError(t, err)
-		assert.NotNil(t, vindexItem)
+		assert.Equal(t, actual, expected)
 	})
 
 	t.Run("", func(t *testing.T) {
 		filesystem.ResetTestFs()
 		item := encode.EncodeFilePath{
-			Path:    "/test/201910240105_test.txt",
-			Storage: "/bar",
+			Path:    "201910240105_test.txt",
+			Storage: "bar",
 		}
 
 		vindexItem, err := item.ToVIndexItem()
