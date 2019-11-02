@@ -11,7 +11,7 @@ import (
 
 // MpegTS MpegTS
 type MpegTS struct {
-	RawPath string
+	rawPath string
 }
 
 var tsFilenameRegexp = regexp.MustCompile("/\\d{8}.+\\.ts$")
@@ -23,7 +23,7 @@ func NewMpegTS(path string) (*MpegTS, error) {
 	}
 
 	ret := MpegTS{
-		RawPath: path,
+		rawPath: path,
 	}
 
 	return &ret, nil
@@ -34,31 +34,36 @@ func (ts MpegTS) IsEncodable(fs afero.Fs) bool {
 	return ts.isExists(fs) && ts.isFree(fs)
 }
 
+// Src Src
+func (ts MpegTS) Src() string {
+	return ts.rawPath[0:len(ts.rawPath)-3] + ".mp4"
+}
+
 // Dest Dest
 func (ts MpegTS) Dest() string {
-	return ts.RawPath[0:len(ts.RawPath)-3] + ".mp4"
+	return ts.rawPath[0:len(ts.rawPath)-3] + ".mp4"
 }
 
 // Remove Remove
 func (ts MpegTS) Remove(fs afero.Fs) error {
 	if !ts.isFree(fs) {
-		return errors.Errorf("TS locked. path=%v", ts.RawPath)
+		return errors.Errorf("TS locked. path=%v", ts.rawPath)
 	}
-	if err := fs.Remove(ts.RawPath); err != nil {
-		return errors.Wrapf(err, "Remove failed. path=%v", ts.RawPath)
+	if err := fs.Remove(ts.rawPath); err != nil {
+		return errors.Wrapf(err, "Remove failed. path=%v", ts.rawPath)
 	}
 
 	return nil
 }
 
 func (ts MpegTS) isExists(fs afero.Fs) bool {
-	ok, err := afero.Exists(fs, ts.RawPath)
+	ok, err := afero.Exists(fs, ts.rawPath)
 
 	return ok && err == nil
 }
 
 func (ts MpegTS) isFree(fs afero.Fs) bool {
-	ok, err := filelock.IsFree(fs, ts.RawPath)
+	ok, err := filelock.IsFree(fs, ts.rawPath)
 
 	return ok && err == nil
 }

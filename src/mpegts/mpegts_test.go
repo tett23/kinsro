@@ -62,6 +62,17 @@ func TestMpegTS__MpegTS__IsEncodable(t *testing.T) {
 	})
 }
 
+func TestMpegTS__MpegTS__Src(t *testing.T) {
+	tsPath := "/20191102_test.ts"
+
+	t.Run("ok", func(t *testing.T) {
+		ts, _ := NewMpegTS(tsPath)
+
+		actual := ts.Src()
+		assert.Equal(t, actual, ts.rawPath)
+	})
+}
+
 func TestMpegTS__MpegTS__Dest(t *testing.T) {
 	tsPath := "/20191102_test.ts"
 
