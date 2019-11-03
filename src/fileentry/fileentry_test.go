@@ -108,6 +108,17 @@ func TestFileEntry__FileEntry__Base(t *testing.T) {
 	})
 }
 
+func TestFileEntry__FileEntry__Dir(t *testing.T) {
+	path := "/dir/20191102_test.ts"
+
+	t.Run("ok", func(t *testing.T) {
+		entry, _ := NewFileEntry(path)
+
+		actual := entry.Dir()
+		assert.Equal(t, actual, "/dir")
+	})
+}
+
 func TestFileEntry__FileEntry__Remove(t *testing.T) {
 	path := "/20191102_test.ts"
 

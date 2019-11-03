@@ -37,6 +37,10 @@ func MoveEntryGroup(fs afero.Fs, group *entrygroup.EntryGroup, storage *storages
 
 // Copy Copy
 func Copy(fs afero.Fs, src, dest *fileentry.FileEntry) error {
+	if err := fs.MkdirAll(dest.Dir(), 0755); err != nil {
+		return err
+	}
+
 	srcFile, err := fs.OpenFile(src.Src(), os.O_RDONLY, 0644)
 	if err != nil {
 		return err

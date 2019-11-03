@@ -45,6 +45,11 @@ func (entry FileEntry) Base() string {
 	return filepath.Base(entry.rawPath)
 }
 
+// Dir Dir
+func (entry FileEntry) Dir() string {
+	return filepath.Dir(entry.rawPath)
+}
+
 // Ext Ext
 func (entry FileEntry) Ext() string {
 	return filepath.Ext(entry.rawPath)

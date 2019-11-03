@@ -30,6 +30,9 @@ func TestMoveEntryGroup(t *testing.T) {
 
 			ok, _ := afero.Exists(fs, src.Src())
 			assert.False(t, ok)
+
+			ok, _ = afero.Exists(fs, "/media/video1/2020/10/10/src.mp4")
+			assert.True(t, ok)
 		})
 	})
 
