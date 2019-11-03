@@ -12,6 +12,7 @@ import (
 	"github.com/tett23/kinsro/src/config"
 	"github.com/tett23/kinsro/src/filesystem"
 	"github.com/tett23/kinsro/src/syscalls"
+	"github.com/tett23/kinsro/src/sysstat"
 	"github.com/tett23/kinsro/src/vindex/vindexdata"
 	"github.com/tett23/kinsro/src/vindex/writer"
 )
@@ -43,6 +44,8 @@ func main() {
 		commandFunc = encodeTS
 	case "encode-all":
 		commandFunc = encodeTSAll
+	case "stats":
+		commandFunc = sysStats
 	default:
 		panic(fmt.Sprintf("Unexpected command. command=%v", command))
 	}
@@ -174,6 +177,19 @@ func encodeTSAll(conf *config.Config, flagSet *flag.FlagSet) error {
 	if err != nil {
 		return err
 	}
+
+	return nil
+}
+
+func sysStats(conf *config.Config, flagSet *flag.FlagSet) error {
+	fs := filesystem.GetFs()
+	ss := syscalls.NewOSSyscalls()
+	stats, err := sysstat.NewSysStat(ss.Statfs, fs)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%+v", stats)
 
 	return nil
 }
