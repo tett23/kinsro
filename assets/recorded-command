@@ -11,11 +11,8 @@ recorded(){
   local TMP_DIR=$(dirname "$TS")
 
   echo "$PROGRAM" > "$TMP_DIR/$OUT_JSON"
-  echo "$PROGRAM" > "$TMP_DIR/$OUT_JSON"
-  echo "home: $HOME" >> /tmp/encode_log
-  echo "user: $USER" >> /tmp/encode_log
 
-  DOTENV_PATH=/home/pi/.config/kinsro/.env /home/pi/bin/kinsro encode $TS > "$TMP_DIR/$LOG"
+  sudo -u pi DOTENV_PATH=/home/pi/.config/kinsro/.env /home/pi/bin/kinsro encode $TS
 }
 
 recorded $1 $2
