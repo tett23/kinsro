@@ -3,9 +3,11 @@ package commands
 import (
 	"syscall"
 	"testing"
+	"time"
 
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
+	"github.com/tett23/kinsro/src/clock"
 	"github.com/tett23/kinsro/src/config"
 	"github.com/tett23/kinsro/src/filesystem"
 	"github.com/tett23/kinsro/src/syscalls"
@@ -104,6 +106,8 @@ func TestCommands__headTS(t *testing.T) {
 
 	t.Run("ok", func(t *testing.T) {
 		t.Run("returns TS path", func(t *testing.T) {
+			clock.Set(time.Now())
+			defer clock.Reset()
 			fs := filesystem.ResetTestFs()
 			fs.MkdirAll(videoTmpPath, 0755)
 			ts1 := videoTmpPath + "/20191102_test.ts"
@@ -117,7 +121,9 @@ func TestCommands__headTS(t *testing.T) {
 			assert.Equal(t, ts, ts1)
 		})
 
-		t.Run("filter TS", func(t *testing.T) {
+		t.Run("filter by filename", func(t *testing.T) {
+			clock.Set(time.Now())
+			defer clock.Reset()
 			fs := filesystem.ResetTestFs()
 			fs.MkdirAll(videoTmpPath, 0755)
 			ts1 := videoTmpPath + "/test1.ts"
@@ -129,6 +135,39 @@ func TestCommands__headTS(t *testing.T) {
 			assert.NoError(t, err)
 			assert.False(t, ok)
 			assert.Equal(t, ts, "")
+		})
+
+		t.Run("filter by ignore paths", func(t *testing.T) {
+			clock.Set(time.Now())
+			defer clock.Reset()
+			fs := filesystem.ResetTestFs()
+			fs.MkdirAll(videoTmpPath, 0755)
+			ts1 := videoTmpPath + "/20191102_test.ts"
+			afero.WriteFile(fs, ts1, []byte{}, 0744)
+			ts2 := videoTmpPath + "/20191103_test.ts"
+			afero.WriteFile(fs, ts2, []byte{}, 0744)
+
+			ts, ok, err := headTS(fs, videoTmpPath, []string{ts1})
+			assert.NoError(t, err)
+			assert.True(t, ok)
+			assert.Equal(t, ts, ts2)
+		})
+
+		t.Run("filter by current time", func(t *testing.T) {
+			clock.Set(time.Date(2000, 1, 10, 0, 0, 0, 0, time.Local))
+			defer clock.Reset()
+
+			fs := filesystem.ResetTestFs()
+			fs.MkdirAll(videoTmpPath, 0755)
+			ts1 := videoTmpPath + "/20000110_test1.ts"
+			afero.WriteFile(fs, ts1, []byte{}, 0744)
+			ts2 := videoTmpPath + "/20000107_test1.ts"
+			afero.WriteFile(fs, ts2, []byte{}, 0744)
+
+			ts, ok, err := headTS(fs, videoTmpPath, []string{})
+			assert.NoError(t, err)
+			assert.True(t, ok)
+			assert.Equal(t, ts, ts2)
 		})
 	})
 }

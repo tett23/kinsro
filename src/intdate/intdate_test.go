@@ -1,7 +1,9 @@
 package intdate
 
 import (
+	"reflect"
 	"testing"
+	"time"
 )
 
 func TestIntDate__NewIntDate(t *testing.T) {
@@ -47,6 +49,23 @@ func TestIntDate__IntDate__ToPath(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.date.ToPath(); got != tt.want {
 				t.Errorf("IntDate.toPath() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestIntDate_ToTime(t *testing.T) {
+	tests := []struct {
+		name string
+		date IntDate
+		want time.Time
+	}{
+		{"", IntDate(20200101), time.Date(2020, time.January, 1, 0, 0, 0, 0, time.Local)},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.date.ToTime(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("IntDate.ToTime() = %v, want %v", got, tt.want)
 			}
 		})
 	}

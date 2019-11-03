@@ -3,8 +3,10 @@ package commands
 import (
 	"log"
 	"path/filepath"
+	"time"
 
 	"github.com/spf13/afero"
+	"github.com/tett23/kinsro/src/clock"
 	"github.com/tett23/kinsro/src/config"
 	"github.com/tett23/kinsro/src/encode"
 	"github.com/tett23/kinsro/src/fileentry/moveentries"
@@ -101,7 +103,15 @@ func headTS(fs afero.Fs, tsDir string, ignorePaths []string) (string, bool, erro
 	}
 	for i := range matches {
 		path := matches[i]
-		if _, err := mpegts.NewMpegTS(path); err != nil {
+		ts, err := mpegts.NewMpegTS(path)
+		if err != nil {
+			continue
+		}
+		intDate, err := ts.ToIntDate()
+		if err != nil {
+			continue
+		}
+		if !twoDaysAgo(intDate.ToTime()) {
 			continue
 		}
 		if isMatchIgnorePath(path, ignorePaths) {
@@ -122,4 +132,8 @@ func isMatchIgnorePath(path string, ignorePaths []string) bool {
 	}
 
 	return false
+}
+
+func twoDaysAgo(t time.Time) bool {
+	return clock.Now().After(t.AddDate(0, 0, -2))
 }

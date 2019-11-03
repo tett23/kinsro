@@ -29,6 +29,11 @@ func (date IntDate) ToPath() string {
 	)
 }
 
+// ToTime ToTime
+func (date IntDate) ToTime() time.Time {
+	return toTime(int(date))
+}
+
 func toYear(date int) int {
 	return date / 10000
 }
@@ -51,11 +56,19 @@ func toDay(date int) int {
 	return date % (date / 100)
 }
 
+func toTime(date int) time.Time {
+	year := toYear(date)
+	month := toMonth(date)
+	day := toDay(date)
+
+	return time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.Local)
+}
+
 func isValidDate(date int) bool {
 	year := toYear(date)
 	month := toMonth(date)
 	day := toDay(date)
-	d := time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC)
+	t := toTime(date)
 
-	return year == d.Year() && time.Month(month) == d.Month() && day == d.Day()
+	return year == t.Year() && time.Month(month) == t.Month() && day == t.Day()
 }
