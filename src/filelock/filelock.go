@@ -2,10 +2,10 @@ package filelock
 
 import (
 	"strconv"
-	"time"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
+	"github.com/tett23/kinsro/src/clock"
 )
 
 // Filelock Filelock
@@ -34,7 +34,7 @@ func IsFree(fs afero.Fs, path string) (bool, error) {
 		return false, errors.Wrap(err, "readLockTimestamp failed.")
 	}
 
-	now := time.Now().Unix()
+	now := clock.Now().Unix()
 
 	return lockTo < now, nil
 }
@@ -76,12 +76,12 @@ func Lock(fs afero.Fs, path string) error {
 		return errors.Errorf("file locked. path=%v %v", path, lockTo)
 	}
 
-	now := time.Now().Unix()
+	now := clock.Now().Unix()
 	lockTo := now + LockTo
 
 	timestampString := strconv.Itoa(int(lockTo))
 
-	return afero.WriteFile(fs, lockPath(path), []byte(timestampString), 0744)
+	return afero.WriteFile(fs, lockPath(path), []byte(timestampString), 0644)
 }
 
 func lockPath(path string) string {
