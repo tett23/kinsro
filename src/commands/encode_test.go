@@ -33,7 +33,7 @@ func TestCommands__EncodeTS(t *testing.T) {
 	}
 
 	t.Run("ok", func(t *testing.T) {
-		t.Run("copy file", func(t *testing.T) {
+		t.Run("removes TS file", func(t *testing.T) {
 			fs := filesystem.ResetTestFs()
 
 			conf := config.GetConfig()
@@ -52,7 +52,7 @@ func TestCommands__EncodeTS(t *testing.T) {
 			assert.False(t, ok)
 		})
 
-		t.Run("copy file", func(t *testing.T) {
+		t.Run("does not removes TS file", func(t *testing.T) {
 			fs := filesystem.ResetTestFs()
 
 			conf := config.GetConfig()
@@ -69,6 +69,66 @@ func TestCommands__EncodeTS(t *testing.T) {
 
 			ok, _ := afero.Exists(fs, path)
 			assert.True(t, ok)
+		})
+	})
+}
+
+func TestCommands__EncodeTSAll(t *testing.T) {
+	tests.Setup()
+	ss := syscalls.Syscalls{
+		Statfs:  buildStatfs(),
+		Chdir:   func(_ string) error { return nil },
+		Symlink: func(_, _ string) error { return nil },
+	}
+	videoTmpPath := "/media/video_tmp"
+
+	t.Run("ok", func(t *testing.T) {
+		t.Run("returns no error", func(t *testing.T) {
+			fs := filesystem.ResetTestFs()
+			conf := config.GetConfig()
+			fs.MkdirAll(videoTmpPath, 0755)
+			ts1 := videoTmpPath + "/20191102_test.ts"
+			afero.WriteFile(fs, ts1, []byte{}, 0744)
+			ts2 := videoTmpPath + "/20191103_test.ts"
+			afero.WriteFile(fs, ts2, []byte{}, 0744)
+			options := EncodeOptions{RemoveTS: true}
+
+			err := EncodeTSAll(conf, &ss, fs, videoTmpPath, options)
+			assert.NoError(t, err)
+		})
+	})
+}
+
+func TestCommands__headTS(t *testing.T) {
+	videoTmpPath := "/media/video_tmp"
+
+	t.Run("ok", func(t *testing.T) {
+		t.Run("returns TS path", func(t *testing.T) {
+			fs := filesystem.ResetTestFs()
+			fs.MkdirAll(videoTmpPath, 0755)
+			ts1 := videoTmpPath + "/20191102_test.ts"
+			afero.WriteFile(fs, ts1, []byte{}, 0744)
+			ts2 := videoTmpPath + "/20191103_test.ts"
+			afero.WriteFile(fs, ts2, []byte{}, 0744)
+
+			ts, ok, err := headTS(fs, videoTmpPath, []string{})
+			assert.NoError(t, err)
+			assert.True(t, ok)
+			assert.Equal(t, ts, ts1)
+		})
+
+		t.Run("filter TS", func(t *testing.T) {
+			fs := filesystem.ResetTestFs()
+			fs.MkdirAll(videoTmpPath, 0755)
+			ts1 := videoTmpPath + "/test1.ts"
+			afero.WriteFile(fs, ts1, []byte{}, 0744)
+			ts2 := videoTmpPath + "/test2.ts"
+			afero.WriteFile(fs, ts2, []byte{}, 0744)
+
+			ts, ok, err := headTS(fs, videoTmpPath, []string{})
+			assert.NoError(t, err)
+			assert.False(t, ok)
+			assert.Equal(t, ts, "")
 		})
 	})
 }

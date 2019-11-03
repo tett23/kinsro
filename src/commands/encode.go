@@ -1,6 +1,9 @@
 package commands
 
 import (
+	"log"
+	"path/filepath"
+
 	"github.com/spf13/afero"
 	"github.com/tett23/kinsro/src/config"
 	"github.com/tett23/kinsro/src/encode"
@@ -31,6 +34,9 @@ func EncodeTS(conf *config.Config, ss *syscalls.Syscalls, fs afero.Fs, tsPath st
 	}
 
 	group, err := ts.ToEntryGroup(fs)
+	if err != nil {
+		return err
+	}
 
 	storage, err := storages.NewStoragesFromPaths(conf.StoragePaths).MostSpacefulStorage(ss.Statfs)
 	if err != nil {
@@ -64,27 +70,56 @@ func EncodeTS(conf *config.Config, ss *syscalls.Syscalls, fs afero.Fs, tsPath st
 	return nil
 }
 
-// func EncodeTSAll(conf *config.Config, fs afero.Fs, tmpPath string) error {
-// 	for ts := headTs(); ts != nil; headTS() {
-// 		EncodeTS(conf, fs, ts)
-// 	}
+// EncodeTSAll EncodeTSAll
+func EncodeTSAll(conf *config.Config, ss *syscalls.Syscalls, fs afero.Fs, tmpPath string, options EncodeOptions) error {
+	var ignorePaths []string
+	for true {
+		tsPath, ok, err := headTS(fs, tmpPath, ignorePaths)
+		log.Println(tsPath)
+		if err != nil {
+			return err
+		}
+		if !ok {
+			break
+		}
 
-// 	return nil
-// }
+		ignorePaths = append(ignorePaths, tsPath)
 
-// func headTS(fs afero.Fs, tsDir string) (string, bool, error) {
-// 	matches, err := afero.Glob(fs, "*.ts")
-// 	if err != nil {
-// 		return "", false, err
-// 	}
-// 	if len(matches) == 0 {
-// 		return "", false, nil
-// 	}
+		if err := EncodeTS(conf, ss, fs, tsPath, options); err != nil {
+			log.Printf("%v\npath=%v\n"+err.Error(), tsPath)
+			return err
+		}
+	}
 
-// 	ts := matches[0]
-// 	for i := range matches {
-// 	&& filelock.IsFree(fs, matches[i])
-// 	}
+	return nil
+}
 
-// 	return ts, true, nil
-// }
+func headTS(fs afero.Fs, tsDir string, ignorePaths []string) (string, bool, error) {
+	matches, err := afero.Glob(fs, filepath.Join(tsDir, "*.ts"))
+	if err != nil {
+		return "", false, err
+	}
+	for i := range matches {
+		path := matches[i]
+		if _, err := mpegts.NewMpegTS(path); err != nil {
+			continue
+		}
+		if isMatchIgnorePath(path, ignorePaths) {
+			continue
+		}
+
+		return path, true, nil
+	}
+
+	return "", false, nil
+}
+
+func isMatchIgnorePath(path string, ignorePaths []string) bool {
+	for i := range ignorePaths {
+		if path == ignorePaths[i] {
+			return true
+		}
+	}
+
+	return false
+}

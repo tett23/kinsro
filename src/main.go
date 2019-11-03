@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 
@@ -24,6 +25,7 @@ func main() {
 
 	command := os.Args[1]
 	flagSet.Parse(os.Args[2:])
+	log.SetOutput(os.Stdout)
 
 	var commandFunc func(conf *config.Config, flagSet *flag.FlagSet) error
 	switch command {
@@ -39,13 +41,15 @@ func main() {
 		commandFunc = rebuild
 	case "encode":
 		commandFunc = encodeTS
+	case "encode-all":
+		commandFunc = encodeTSAll
 	default:
 		panic(fmt.Sprintf("Unexpected command. command=%v", command))
 	}
 
 	err := commandFunc(config.GetConfig(), flagSet)
 	if err != nil {
-		fmt.Printf("%+v\n", err)
+		log.Printf("%+v\n", err)
 		panic(err)
 	}
 }
@@ -75,7 +79,7 @@ func ls(conf *config.Config, flagSet *flag.FlagSet) error {
 
 	for i := range vindex {
 		item := vindex[i]
-		fmt.Printf("%v %v %v %v\n", item.HexDigest(), item.Storage, item.Date, filepath.Base(item.Filename))
+		log.Printf("%v %v %v %v\n", item.HexDigest(), item.Storage, item.Date, filepath.Base(item.Filename))
 	}
 
 	return nil
@@ -99,7 +103,7 @@ func append(conf *config.Config, flagSet *flag.FlagSet) error {
 		return err
 	}
 
-	fmt.Println(vindexItem.HexDigest())
+	log.Println(vindexItem.HexDigest())
 
 	return nil
 }
@@ -152,6 +156,21 @@ func encodeTS(conf *config.Config, flagSet *flag.FlagSet) error {
 		RemoveTS: false,
 	}
 	err := commands.EncodeTS(conf, syscalls.NewOSSyscalls(), fs, tsPath, options)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func encodeTSAll(conf *config.Config, flagSet *flag.FlagSet) error {
+	args := flagSet.Args()
+	videoTmpPath := args[0]
+	fs := filesystem.GetFs()
+	options := commands.EncodeOptions{
+		RemoveTS: false,
+	}
+	err := commands.EncodeTSAll(conf, syscalls.NewOSSyscalls(), fs, videoTmpPath, options)
 	if err != nil {
 		return err
 	}
