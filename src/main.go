@@ -153,7 +153,7 @@ func encodeTS(conf *config.Config, flagSet *flag.FlagSet) error {
 	tsPath := args[0]
 	fs := filesystem.GetFs()
 	options := commands.EncodeOptions{
-		RemoveTS: false,
+		RemoveTS: true,
 	}
 	err := commands.EncodeTS(conf, syscalls.NewOSSyscalls(), fs, tsPath, options)
 	if err != nil {
@@ -168,7 +168,7 @@ func encodeTSAll(conf *config.Config, flagSet *flag.FlagSet) error {
 	videoTmpPath := args[0]
 	fs := filesystem.GetFs()
 	options := commands.EncodeOptions{
-		RemoveTS: false,
+		RemoveTS: true,
 	}
 	err := commands.EncodeTSAll(conf, syscalls.NewOSSyscalls(), fs, videoTmpPath, options)
 	if err != nil {
