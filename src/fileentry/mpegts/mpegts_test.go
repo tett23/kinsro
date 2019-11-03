@@ -7,6 +7,8 @@ import (
 	"github.com/tett23/kinsro/src/fileentry"
 	"github.com/tett23/kinsro/src/filesystem"
 	"github.com/tett23/kinsro/src/intdate"
+	"github.com/tett23/kinsro/src/storages"
+	"github.com/tett23/kinsro/src/vindex/vindexdata"
 )
 
 func TestMpegTS__NewMpegTS(t *testing.T) {
@@ -83,7 +85,7 @@ func TestMpegTS__MpegTS__ToIntDate(t *testing.T) {
 
 		actual, err := ts.ToIntDate()
 		assert.NoError(t, err)
-		assert.NotNil(t, actual, intdate.IntDate(20191102))
+		assert.Equal(t, actual, intdate.IntDate(20191102))
 	})
 
 	t.Run("error", func(t *testing.T) {
@@ -107,6 +109,19 @@ func TestMpegTS__MpegTS__ToIntDate(t *testing.T) {
 			assert.Error(t, err)
 			assert.Equal(t, actual, intdate.IntDate(-1))
 		})
+	})
+}
+
+func TestMpegTS__MpegTS__ToVIndexItem(t *testing.T) {
+	t.Run("ok", func(t *testing.T) {
+		ts, _ := NewMpegTS("/media/video_tmp/20191102_test.ts")
+		storage := storages.NewStorage("/media/video1")
+
+		actual, err := ts.ToVIndexItem(storage)
+		assert.NoError(t, err)
+		assert.NotNil(t, actual)
+		expected, _ := vindexdata.NewVIndexItem("video1", 20191102, "20191102_test.mp4")
+		assert.Equal(t, actual, expected)
 	})
 }
 

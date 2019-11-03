@@ -43,9 +43,9 @@ func TestVIndex__NewVIndexItemFromBinary(t *testing.T) {
 		assert.Equal(t, item, restore)
 	})
 
-	t.Run("ok", func(t *testing.T) {
+	t.Run("error", func(t *testing.T) {
 		restore, err := vindexdata.NewBinaryIndexItemFromBinary([]byte{})
-		assert.NoError(t, err)
+		assert.Error(t, err)
 		assert.Nil(t, restore)
 	})
 }

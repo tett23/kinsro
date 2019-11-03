@@ -1,27 +1,21 @@
 package writer
 
 import (
-	"os"
 	"path/filepath"
 
 	"github.com/pkg/errors"
-	"github.com/tett23/kinsro/src/config"
+	"github.com/spf13/afero"
+	"github.com/tett23/kinsro/src/storages"
+	"github.com/tett23/kinsro/src/syscalls"
 	"github.com/tett23/kinsro/src/vindex/vindexdata"
 )
 
 // CreateSymlink CreateSymlink
-func CreateSymlink(conf *config.Config, vindexItem *vindexdata.VIndexItem) error {
-	m := storageMap(conf.StoragePaths)
-	symlinkDir, ok := m[vindexItem.Storage]
-	if !ok {
-		return errors.Errorf("%v", vindexItem.Storage)
-	}
+func CreateSymlink(ss *syscalls.Syscalls, fs afero.Fs, vindexItem *vindexdata.VIndexItem, storage *storages.Storage) error {
+	src := filepath.Join(storage.Path, vindexItem.Path())
+	dst := filepath.Join(storage.Path, vindexItem.SymlinkPath())
 
-	symlinkName := vindexItem.SymlinkName()
-	src := vindexItem.Filename
-	dst := filepath.Join(symlinkDir, symlinkName)
-
-	err := createSymlink(src, dst)
+	err := createSymlink(ss, fs, src, dst)
 	if err != nil {
 		return errors.Wrapf(err, "createSymlink failed. src=%v dst=%v", src, dst)
 	}
@@ -29,38 +23,28 @@ func CreateSymlink(conf *config.Config, vindexItem *vindexdata.VIndexItem) error
 	return nil
 }
 
-func createSymlink(src, dst string) error {
+func createSymlink(ss *syscalls.Syscalls, fs afero.Fs, src, dst string) error {
 	currentPwd, err := filepath.Abs(".")
 	if err != nil {
 		return errors.Wrapf(err, "filepath.Abs failed.")
 	}
 
 	base := filepath.Dir(dst)
-	os.MkdirAll(base, 0755)
+	fs.MkdirAll(base, 0755)
 
 	relSrc, err := filepath.Rel(base, src)
 	if err != nil {
 		return errors.Wrapf(err, "filepath.Rel failed. src=%v dst=%v", base, src)
 	}
 
-	os.Chdir(base)
-	defer os.Chdir(currentPwd)
+	ss.Chdir(base)
+	defer ss.Chdir(currentPwd)
 
-	os.Remove(dst)
-	err = os.Symlink(relSrc, filepath.Base(dst))
+	fs.Remove(dst)
+	err = ss.Symlink(relSrc, filepath.Base(dst))
 	if err != nil {
 		return errors.Wrapf(err, "os.Symlinkfailed. src=%v dst=%v", relSrc, filepath.Base(dst))
 	}
 
 	return nil
-}
-
-func storageMap(storagePaths []string) map[string]string {
-	ret := map[string]string{}
-	for i := range storagePaths {
-		basename := filepath.Base(storagePaths[i])
-		ret[basename] = filepath.Join(storagePaths[i], "symlinks")
-	}
-
-	return ret
 }

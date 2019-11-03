@@ -11,6 +11,8 @@ import (
 	"github.com/tett23/kinsro/src/fileentry"
 	"github.com/tett23/kinsro/src/fileentry/entrygroup"
 	"github.com/tett23/kinsro/src/intdate"
+	"github.com/tett23/kinsro/src/storages"
+	"github.com/tett23/kinsro/src/vindex/vindexdata"
 )
 
 // MpegTS MpegTS
@@ -56,7 +58,7 @@ func (ts MpegTS) ToEntryGroup(fs afero.Fs) (*entrygroup.EntryGroup, error) {
 
 // ToIntDate ToIntDate
 func (ts MpegTS) ToIntDate() (intdate.IntDate, error) {
-	base := filepath.Base(ts.Src())
+	base := ts.Base()
 	if len(base) < 8 {
 		return -1, errors.Errorf("Atoi failed. path=%v", base)
 	}
@@ -67,6 +69,18 @@ func (ts MpegTS) ToIntDate() (intdate.IntDate, error) {
 	}
 
 	return intdate.NewIntDate(date)
+}
+
+// ToVIndexItem ToVIndexItem
+func (ts MpegTS) ToVIndexItem(storage *storages.Storage) (*vindexdata.VIndexItem, error) {
+	date, err := ts.ToIntDate()
+	if err != nil {
+		return nil, err
+	}
+
+	mp4 := filepath.Base(ts.Dest())
+
+	return vindexdata.NewVIndexItem(storage.Name(), int(date), mp4)
 }
 
 func isMpegTSPath(path string) bool {

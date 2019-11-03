@@ -36,8 +36,8 @@ func TestEntryGroup__NewEntryGroupFromTSPath(t *testing.T) {
 		b, _ := fileentry.NewFileEntry("/media/video_tmp/20191102_test.log")
 		c, _ := fileentry.NewFileEntry("/media/video_tmp/20191102_test.mp4")
 		expected := []fileentry.FileEntry{*a, *b, *c}
-		assert.Equal(t, group.date, date)
-		assert.EqualValues(t, group.entries, expected)
+		assert.Equal(t, group.Date, date)
+		assert.EqualValues(t, group.Entries, expected)
 	})
 
 	t.Run("error", func(t *testing.T) {

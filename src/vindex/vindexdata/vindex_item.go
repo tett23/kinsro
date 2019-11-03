@@ -103,6 +103,11 @@ func (item VIndexItem) SymlinkName() string {
 	return filepath.Join(digest[0:2], digest[2:4], digest[4:]+".mp4")
 }
 
+// SymlinkPath SymlinkPath
+func (item VIndexItem) SymlinkPath() string {
+	return filepath.Join("symlinks", item.SymlinkName())
+}
+
 // ToBinary ToBinary
 func (item VIndexItem) ToBinary() []byte {
 	pairs := structFields()

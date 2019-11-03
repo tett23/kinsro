@@ -37,7 +37,7 @@ func BuildVIndex(storagePaths []string) (vindexdata.VIndex, error) {
 		filtered := filterPaths(matches)
 		ret := make(vindexdata.VIndex, len(filtered))
 		for i := range filtered {
-			vindexItem, err := vindexdata.ParseFilepath([]string{path}, filtered[i])
+			vindexItem, err := vindexdata.ParseFullFilepath([]string{path}, filtered[i])
 			if err != nil {
 				return nil, errors.Wrapf(err, "ParseFilepath failed. videoPath=%+v", filtered[i])
 			}

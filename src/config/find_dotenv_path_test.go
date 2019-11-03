@@ -8,9 +8,6 @@ import (
 	"github.com/tett23/kinsro/src/filesystem"
 )
 
-func TestMain(m *testing.M) {
-}
-
 func Test__Config__checkEnvironmentVariable(t *testing.T) {
 	fs := filesystem.GetFs()
 	envPath := "/test/.env"

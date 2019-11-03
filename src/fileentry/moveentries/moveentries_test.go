@@ -1,8 +1,6 @@
-package moventries
+package moveentries
 
 import (
-	"errors"
-	"syscall"
 	"testing"
 
 	"github.com/spf13/afero"
@@ -11,19 +9,8 @@ import (
 	"github.com/tett23/kinsro/src/fileentry/entrygroup"
 	"github.com/tett23/kinsro/src/filesystem"
 	"github.com/tett23/kinsro/src/intdate"
+	"github.com/tett23/kinsro/src/storages"
 )
-
-func buildStatfs() Statfs {
-	count := 0
-
-	return func(path string, stat *syscall.Statfs_t) error {
-		stat.Bsize = 4086
-		stat.Bfree = uint64(1000 * (count + 1))
-		count++
-
-		return nil
-	}
-}
 
 func TestMoveEntryGroup(t *testing.T) {
 	date, _ := intdate.NewIntDate(20201010)
@@ -36,8 +23,9 @@ func TestMoveEntryGroup(t *testing.T) {
 			afero.WriteFile(fs, src.Src(), []byte(content), 0744)
 			items := []fileentry.FileEntry{*src}
 			group, _ := entrygroup.NewEntryGroup(date, items)
+			storage := storages.NewStorage("/media/video1")
 
-			err := MoveEntryGroup(fs, buildStatfs(), group, []string{"/storage"})
+			err := MoveEntryGroup(fs, group, storage)
 			assert.NoError(t, err)
 
 			ok, _ := afero.Exists(fs, src.Src())
@@ -46,23 +34,14 @@ func TestMoveEntryGroup(t *testing.T) {
 	})
 
 	t.Run("error", func(t *testing.T) {
-		t.Run("no storages", func(t *testing.T) {
-			fs := filesystem.ResetTestFs()
-			src, _ := fileentry.NewFileEntry("/src.mp4")
-			items := []fileentry.FileEntry{*src}
-			group, _ := entrygroup.NewEntryGroup(date, items)
-
-			err := MoveEntryGroup(fs, buildStatfs(), group, []string{})
-			assert.Error(t, err)
-		})
-
 		t.Run("src does not exists", func(t *testing.T) {
 			fs := filesystem.ResetTestFs()
 			src, _ := fileentry.NewFileEntry("/src.mp4")
 			items := []fileentry.FileEntry{*src}
 			group, _ := entrygroup.NewEntryGroup(date, items)
+			storage := storages.NewStorage("/media/video1")
 
-			err := MoveEntryGroup(fs, buildStatfs(), group, []string{"/storage"})
+			err := MoveEntryGroup(fs, group, storage)
 			assert.Error(t, err)
 		})
 	})
@@ -93,40 +72,6 @@ func Test__MoveEntries__Copy(t *testing.T) {
 
 			err := Copy(fs, src, dest)
 			assert.Error(t, err)
-		})
-	})
-}
-
-func TestMoveEntries__mostSpacefulStorage(t *testing.T) {
-	t.Run("ok", func(t *testing.T) {
-		t.Run("returns storage path", func(t *testing.T) {
-			storage, err := mostSpacefulStorage(buildStatfs(), []string{"/storage1"})
-			assert.NoError(t, err)
-			assert.Equal(t, storage, "/storage1")
-		})
-
-		t.Run("return most spaceful storage", func(t *testing.T) {
-			storage, err := mostSpacefulStorage(buildStatfs(), []string{"/storage1", "/storage2"})
-			assert.NoError(t, err)
-			assert.Equal(t, storage, "/storage2")
-		})
-	})
-
-	t.Run("error", func(t *testing.T) {
-		t.Run("no storages", func(t *testing.T) {
-			storage, err := mostSpacefulStorage(buildStatfs(), []string{})
-			assert.Error(t, err)
-			assert.Equal(t, storage, "")
-		})
-
-		t.Run("statfs returns error", func(t *testing.T) {
-			statfs := func(path string, stat *syscall.Statfs_t) error {
-				return errors.New("")
-			}
-
-			storage, err := mostSpacefulStorage(statfs, []string{"/storage1", "/storage2"})
-			assert.Error(t, err)
-			assert.Equal(t, storage, "")
 		})
 	})
 }

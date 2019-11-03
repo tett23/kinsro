@@ -44,7 +44,7 @@ func (partialConfig PartialConfig) Merge(updater *PartialConfig) *PartialConfig 
 	if updater.VIndexPath != nil {
 		ret.VIndexPath = updater.VIndexPath
 	}
-	if updater.Environment != nil {
+	if updater.StoragePaths != nil {
 		ret.StoragePaths = updater.StoragePaths
 	}
 	if updater.FfmpegScriptPath != nil {
@@ -105,10 +105,11 @@ func NewPartialConfigFromEnvironmentVariable() *PartialConfig {
 		partial.VIndexPath = &value
 	}
 
-	if value := strings.Split(os.Getenv("STORAGE_PATHS"), ","); len(value) == 0 {
+	if value := os.Getenv("STORAGE_PATHS"); value == "" {
 		partial.StoragePaths = nil
 	} else {
-		partial.StoragePaths = &value
+		items := strings.Split(os.Getenv("STORAGE_PATHS"), ",")
+		partial.StoragePaths = &items
 	}
 
 	if value := os.Getenv("FFSHELL_PATH"); value == "" {

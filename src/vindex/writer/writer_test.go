@@ -5,12 +5,14 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/tett23/kinsro/src/config"
+	"github.com/tett23/kinsro/src/filesystem"
 	"github.com/tett23/kinsro/src/vindex/reader"
 
 	"github.com/tett23/kinsro/src/vindex/vindexdata"
 )
 
 func TestAppend(t *testing.T) {
+	fs := filesystem.ResetTestFs()
 	conf := config.Config{
 		VIndexPath: "/test/vindex",
 	}
@@ -24,7 +26,7 @@ func TestAppend(t *testing.T) {
 	ch = Append(&conf, item2)
 	<-ch
 
-	ret, err := reader.ReadAll(conf.VIndexPath)
+	ret, err := reader.ReadAll(fs, conf.VIndexPath)
 	assert.NoError(t, err)
 	assert.Equal(t, vindexdata.VIndex{*item1, *item2}, ret)
 }

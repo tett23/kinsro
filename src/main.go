@@ -9,6 +9,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/tett23/kinsro/src/commands"
 	"github.com/tett23/kinsro/src/config"
+	"github.com/tett23/kinsro/src/filesystem"
+	"github.com/tett23/kinsro/src/syscalls"
 	"github.com/tett23/kinsro/src/vindex/vindexdata"
 	"github.com/tett23/kinsro/src/vindex/writer"
 )
@@ -65,7 +67,8 @@ func build(conf *config.Config, flagSet *flag.FlagSet) error {
 }
 
 func ls(conf *config.Config, flagSet *flag.FlagSet) error {
-	vindex, err := commands.ListIndex(conf.VIndexPath)
+	fs := filesystem.GetFs()
+	vindex, err := commands.ListIndex(fs, conf.VIndexPath)
 	if err != nil {
 		return err
 	}
@@ -85,12 +88,13 @@ func append(conf *config.Config, flagSet *flag.FlagSet) error {
 		return errors.Errorf("Invalid filename")
 	}
 
-	vindexItem, err := vindexdata.ParseFilepath(conf.StoragePaths, path)
+	vindexItem, err := vindexdata.ParseFullFilepath(conf.StoragePaths, path)
 	if err != nil {
 		return errors.Errorf("ParseFilepath failed. path=%v", path)
 	}
 
-	err = commands.AppendToIndex(conf, vindexItem)
+	fs := filesystem.GetFs()
+	err = commands.AppendToIndex(conf, fs, vindexItem)
 	if err != nil {
 		return err
 	}
@@ -107,7 +111,8 @@ func symlink(conf *config.Config, flagSet *flag.FlagSet) error {
 	}
 
 	digest := args[0]
-	err := commands.Symlink(conf, digest)
+	fs := filesystem.GetFs()
+	err := commands.Symlink(conf, syscalls.NewOSSyscalls(), fs, digest)
 	if err != nil {
 		return err
 	}
@@ -116,7 +121,8 @@ func symlink(conf *config.Config, flagSet *flag.FlagSet) error {
 }
 
 func symlinkAll(conf *config.Config, flagSet *flag.FlagSet) error {
-	err := commands.SymlinkAll(conf)
+	fs := filesystem.GetFs()
+	err := commands.SymlinkAll(conf, syscalls.NewOSSyscalls(), fs)
 	if err != nil {
 		return err
 	}
@@ -141,7 +147,11 @@ func rebuild(conf *config.Config, flagSet *flag.FlagSet) error {
 func encodeTS(conf *config.Config, flagSet *flag.FlagSet) error {
 	args := flagSet.Args()
 	tsPath := args[0]
-	err := commands.EncodeTS(conf, tsPath)
+	fs := filesystem.GetFs()
+	options := commands.EncodeOptions{
+		RemoveTS: false,
+	}
+	err := commands.EncodeTS(conf, syscalls.NewOSSyscalls(), fs, tsPath, options)
 	if err != nil {
 		return err
 	}
