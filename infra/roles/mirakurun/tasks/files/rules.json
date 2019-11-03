@@ -2,7 +2,8 @@
   {
     "types": ["GR"],
     "categories": ["anime"],
-    "ignore_channels": ["26", "27"],
+    "ignore_channels": ["26", "18", "27", "15"],
+    "ignore_flags": ["再"],
     "hour": {
       "start": 10,
       "end": 4
@@ -11,8 +12,12 @@
       "min": 300,
       "max": 10801
     },
-    "ignore_titles": [],
-    "ignore_flags": ["再"]
+    "ignore_titles": [
+      "サザエさん",
+      "ちびまる子ちゃん",
+      "それいけ！アンパンマン"
+    ],
+    "recorded_format": ""
   },
   {
     "types": ["CS"],
