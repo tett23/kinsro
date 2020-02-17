@@ -13,7 +13,8 @@
   "alias": {
     "models": "./front/src/models",
     "modules": "./front/src/modules",
-    "components": "./front/src/components"
+    "components": "./front/src/components",
+    "kvs": "./front/src/kvs"
   },
   "dependencies": {
     "core-js": "^3.6.4",
