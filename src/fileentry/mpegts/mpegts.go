@@ -46,6 +46,13 @@ func (ts MpegTS) Dest() string {
 	return src[0:len(src)-3] + ".mp4"
 }
 
+// LogPath LogPath
+func (ts MpegTS) LogPath() string {
+	src := ts.Src()
+
+	return src[0:len(src)-3] + ".log"
+}
+
 // ToEntryGroup ToEntryGroup
 func (ts MpegTS) ToEntryGroup(fs afero.Fs) (*entrygroup.EntryGroup, error) {
 	date, err := ts.ToIntDate()

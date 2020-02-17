@@ -21,6 +21,9 @@ func TestEncode__Encode(t *testing.T) {
 
 			err := Encode(conf, fs, ts)
 			assert.NoError(t, err)
+
+			ok, _ := afero.Exists(fs, ts.LogPath())
+			assert.True(t, ok)
 		})
 	})
 }

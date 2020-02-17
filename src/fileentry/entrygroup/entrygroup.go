@@ -32,6 +32,8 @@ func NewEntryGroupFromTSPath(fs afero.Fs, date intdate.IntDate, src string) (*En
 	}
 
 	excludeExt := src[0 : len(src)-3]
+	excludeExt = strings.ReplaceAll(excludeExt, "[", "\\[")
+	excludeExt = strings.ReplaceAll(excludeExt, "]", "\\]")
 
 	matches, err := afero.Glob(fs, excludeExt+"*")
 	if err != nil {

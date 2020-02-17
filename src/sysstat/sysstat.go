@@ -12,6 +12,7 @@ import (
 
 // SysStat SysStat
 type SysStat struct {
+	// 時刻とサーバー名いるかな？
 	Memory *MemoryStat
 	Disks  []DiskStat
 }

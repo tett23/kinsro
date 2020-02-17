@@ -51,6 +51,17 @@ func TestMpegTS__MpegTS__Dest(t *testing.T) {
 	})
 }
 
+func TestMpegTS__MpegTS__LogPath(t *testing.T) {
+	tsPath := "/20191102_test.ts"
+
+	t.Run("ok", func(t *testing.T) {
+		ts, _ := NewMpegTS(tsPath)
+
+		actual := ts.LogPath()
+		assert.Equal(t, actual, "/20191102_test.log")
+	})
+}
+
 func TestMpegTS__MpegTS__ToEntryGroup(t *testing.T) {
 	path := "/media/video_tmp/20191102_test.ts"
 

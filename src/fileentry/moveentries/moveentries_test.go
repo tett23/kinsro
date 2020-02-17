@@ -52,7 +52,7 @@ func TestMoveEntryGroup(t *testing.T) {
 
 func Test__MoveEntries__Copy(t *testing.T) {
 	t.Run("ok", func(t *testing.T) {
-		t.Run("copy file", func(t *testing.T) {
+		t.Run("copy file[a]", func(t *testing.T) {
 			fs := filesystem.ResetTestFs()
 			content := "test"
 			src, _ := fileentry.NewFileEntry("/src.mp4")

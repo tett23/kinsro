@@ -89,7 +89,8 @@ func EncodeTSAll(conf *config.Config, ss *syscalls.Syscalls, fs afero.Fs, tmpPat
 
 		if err := EncodeTS(conf, ss, fs, tsPath, options); err != nil {
 			log.Printf("%v\npath=%v\n"+err.Error(), tsPath)
-			return err
+
+			continue
 		}
 	}
 

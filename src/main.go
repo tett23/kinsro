@@ -182,6 +182,7 @@ func encodeTSAll(conf *config.Config, flagSet *flag.FlagSet) error {
 }
 
 func sysStats(conf *config.Config, flagSet *flag.FlagSet) error {
+	// サーバーごとにjsonを生成、ロックしつつ、ストレージにstat.jsonを書きだす
 	fs := filesystem.GetFs()
 	ss := syscalls.NewOSSyscalls()
 	stats, err := sysstat.NewSysStat(ss.Statfs, fs)
