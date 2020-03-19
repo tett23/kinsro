@@ -23,7 +23,7 @@ ts2mp4() {
   -aspect 16:9 -s ${WIDTH}x${HEIGHT} \
   -r 30000/1001 \
   -fpre $PRESET_PATH \
-  -c:a copy -bsf:a aac_adtstoasc \
+  -acodec aac \
     "
 
   # -vf yadif=1:-1 \
