@@ -8,10 +8,10 @@ import { VIndex, VIndexItem } from 'models/vindex';
 
 (async () => {
   const go = new Go();
-  const result = await WebAssembly.instantiateStreaming(
-    fetch('/kinsro.wasm'),
-    go.importObject,
-  ).catch((err: Error) => err);
+  const buf = await fetch('/kinsro.wasm').then((resp) => resp.arrayBuffer());
+  const result = await WebAssembly.instantiate(buf, go.importObject).catch(
+    (err: Error) => err,
+  );
   if (result instanceof Error) {
     console.error(result);
     return;
