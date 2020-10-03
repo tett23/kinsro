@@ -5,6 +5,7 @@ import { State } from 'modules';
 import VIndexItem from 'components/VIndexItem';
 import { Pager } from './Pager';
 import { rootUpdatePage } from 'modules/ui';
+import { appendFile } from 'fs';
 
 type OwnProps = {
   page: number;
@@ -85,12 +86,26 @@ function filterVIndex(vindex: VIndexType, query: string | null): VIndexType {
   });
 }
 
+const DateTimeRe = /^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})_.+/;
+const DateRe = /^(\d{4})(\d{2})(\d{2})/;
+
 function sortVIndex(vindex: VIndexType): VIndexType {
   return vindex.sort((a, b) => {
-    if (a.date !== b.date) {
-      return b.date - a.date;
+    const aTime = toTimestamp(a.filename, a.date);
+    const bTime = toTimestamp(b.filename, b.date);
+
+    if (aTime !== bTime) {
+      return bTime - aTime;
     }
 
     return a.filename < b.filename ? -1 : 1;
   });
+}
+
+function toTimestamp(filename: string, date: number): number {
+  return Date.parse(
+    DateTimeRe.test(filename)
+      ? filename.replace(DateTimeRe, '$1-$2-$3T$4:$5:00')
+      : `${date}`.replace(DateRe, '$1-$2-$3'),
+  );
 }
