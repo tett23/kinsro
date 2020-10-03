@@ -5,7 +5,6 @@ import { State } from 'modules';
 import VIndexItem from 'components/VIndexItem';
 import { Pager } from './Pager';
 import { rootUpdatePage } from 'modules/ui';
-import { appendFile } from 'fs';
 
 type OwnProps = {
   page: number;
@@ -79,10 +78,13 @@ function filterVIndex(vindex: VIndexType, query: string | null): VIndexType {
     return vindex;
   }
 
-  const normalizedQuery = query.normalize('NFKC');
+  const normalizedQuery = query.normalize('NFKC').toLowerCase();
 
   return vindex.filter((item) => {
-    return item.filename.normalize('NFKC').includes(normalizedQuery);
+    return item.filename
+      .normalize('NFKC')
+      .toLowerCase()
+      .includes(normalizedQuery);
   });
 }
 
