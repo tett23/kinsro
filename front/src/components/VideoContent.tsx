@@ -35,7 +35,6 @@ export function VideoContent({
       <h2>{basename(vindexItem.filename)}</h2>
       <video
         controls
-        width="100%"
         ref={(ref) => {
           if (ref != null) {
             ref.volume = volume;
@@ -44,6 +43,7 @@ export function VideoContent({
         onVolumeChange={(e) =>
           onVolumeChange((e.target as HTMLVideoElement).volume)
         }
+        style={{ width: '100%', outline: 'none' }}
       >
         <source src={`/videos/${digest}.mp4`} />
       </video>
