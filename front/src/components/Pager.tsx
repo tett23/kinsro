@@ -22,10 +22,10 @@ export function Pager({ current, max, onClickPage }: PagerProps) {
     />
   ));
 
-  return <ul>{items}</ul>;
+  return <ul style={{ listStyleType: 'none', padding: 0 }}>{items}</ul>;
 }
 
-export default function(ownProps: OwnProps) {
+export default function (ownProps: OwnProps) {
   return <Pager {...buildPagerProps(ownProps)} />;
 }
 
@@ -41,6 +41,19 @@ type PageItemProps = {
   onClick: () => void;
 };
 
-function PageItem({ page, onClick }: PageItemProps) {
-  return <li onClick={onClick}>{page}</li>;
+function PageItem({ page, isCurrent, onClick }: PageItemProps) {
+  return (
+    <li
+      onClick={onClick}
+      role="button"
+      style={{
+        display: 'inline-block',
+        marginRight: '1rem',
+        cursor: 'pointer',
+        color: isCurrent ? 'black' : 'blue',
+      }}
+    >
+      {page}
+    </li>
+  );
 }
