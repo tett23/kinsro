@@ -4,7 +4,7 @@ import './wasm_exec';
 import React from 'react';
 import { render } from 'react-dom';
 import App from './App';
-import { VIndex, VIndexItem } from 'models/vindex';
+import { VIndexItem } from 'models/vindex';
 
 (async () => {
   const go = new Go();
@@ -23,7 +23,7 @@ import { VIndex, VIndexItem } from 'models/vindex';
 
   setTimeout(async () => {
     window.parseVIndex(bytes);
-    const vindex: VIndex = JSON.parse(window.vindex).sort(
+    const vindex: VIndexItem[] = JSON.parse(window.vindex).sort(
       (a: VIndexItem, b: VIndexItem) => {
         const dateDiff = b.date - a.date;
         return dateDiff == 0 ? a.filename.localeCompare(b.filename) : dateDiff;

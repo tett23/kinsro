@@ -1,10 +1,10 @@
 import React from 'react';
 import { useParams } from 'react-router';
-import { useSelector } from 'react-redux';
 import { basename } from 'path';
-import { State } from 'modules';
 import { VIndexItem } from 'models/vindex';
 import useKVS from 'kvs/hooks';
+import { useRecoilValue } from 'recoil';
+import { mainVindex } from 'modules';
 
 type OwnProps = {};
 
@@ -51,20 +51,20 @@ export function VideoContent({
   );
 }
 
-export default function(ownProps: OwnProps) {
+export default function (ownProps: OwnProps) {
   return <VideoContent {...buildVideoContentProps(ownProps)} />;
 }
 
 export function buildVideoContentProps(ownProps: OwnProps): VideoContentProps {
+  const vindex = useRecoilValue(mainVindex);
   const { digest } = useParams<{ digest: string }>();
   const [volume, setVolume] = useKVS<number>('volume', 1.0);
 
-  const stateProps: StateProps = useSelector((state: State) => ({
+  const stateProps = {
     digest,
-    vindexItem:
-      state.domain.vindex.find((item) => item.digest === digest) || null,
+    vindexItem: vindex.find((item) => item.digest === digest) || null,
     volume: volume ?? 1.0,
-  }));
+  };
   const dispatchProps: DispatchProps = {
     onVolumeChange: (value: number) => {
       setVolume(value);

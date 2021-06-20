@@ -1,47 +1,17 @@
-import { applyMiddleware, combineReducers, createStore, Store } from 'redux';
-import thunk, { ThunkDispatch, ThunkMiddleware } from 'redux-thunk';
-import domainReducer, {
-  DomainActions,
-  DomainState,
-  initialDomainState,
-} from 'modules/domain';
-import uiReducer, { UIActions, UIState, initialUIState } from 'modules/ui';
-import { VIndex } from 'models/vindex';
+import { VIndexItem } from 'models/vindex';
+import { atom } from 'recoil';
 
-export type State = {
-  domain: DomainState;
-  ui: UIState;
-};
-
-export type Actions = DomainActions | UIActions;
-
-export const reducers = combineReducers<State>({
-  domain: domainReducer,
-  ui: uiReducer,
+export const mainVindexQuery = atom<string | null>({
+  key: 'Main/FilterText',
+  default: null,
 });
 
-export function initialState(): State {
-  return {
-    domain: initialDomainState(),
-    ui: initialUIState(),
-  };
-}
+export const mainVindex = atom<VIndexItem[]>({
+  key: 'Main/Vindex',
+  default: [],
+});
 
-export type ThunkStore<S, A extends Actions> = Store<S, A> & {
-  dispatch: ThunkDispatch<S, undefined, A>;
-};
-
-export default function initializeStore(vindex: VIndex): Store<State, Actions> {
-  const init: State = {
-    domain: { vindex },
-    ui: initialUIState(),
-  };
-
-  const store: Store<State, Actions> = createStore(
-    reducers as any,
-    init,
-    applyMiddleware(thunk as ThunkMiddleware<State, Actions>),
-  );
-
-  return store;
-}
+export const mainCurrentPaginationPage = atom<number>({
+  key: 'Main/PageCunt',
+  default: 0,
+});

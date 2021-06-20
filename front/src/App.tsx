@@ -1,20 +1,22 @@
 import React from 'react';
-import initializeStore from 'modules';
-import { Provider } from 'react-redux';
 import { BrowserRouter, Switch, Route, Link } from 'react-router-dom';
-import { VIndex as VIndexType } from 'models/vindex';
+import { VIndexItem } from 'models/VIndex';
 import Root from 'components/Root';
 import VideoContent from 'components/VideoContent';
+import { RecoilRoot } from 'recoil';
+import { mainVindex } from 'modules';
 
 export type AppProps = {
-  vindex: VIndexType;
+  vindex: VIndexItem[];
 };
 
 export default function App(props: AppProps) {
-  const store = initializeStore(props.vindex);
-
   return (
-    <Provider store={store}>
+    <RecoilRoot
+      initializeState={({ set }) => {
+        set(mainVindex, props.vindex);
+      }}
+    >
       <BrowserRouter>
         <h1>
           <Link to="/">kinsro</Link>
@@ -28,6 +30,6 @@ export default function App(props: AppProps) {
           </Route>
         </Switch>
       </BrowserRouter>
-    </Provider>
+    </RecoilRoot>
   );
 }

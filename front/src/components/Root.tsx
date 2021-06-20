@@ -1,8 +1,8 @@
 import React from 'react';
 import FileFilter from './FileFilter';
 import VIndex from './VIndex';
-import { useSelector } from 'react-redux';
-import { State } from 'modules';
+import { useRecoilValue } from 'recoil';
+import { mainCurrentPaginationPage } from 'modules';
 
 type OwnProps = {};
 
@@ -23,17 +23,14 @@ export function Root({ page }: RootProps) {
   );
 }
 
-export default function(ownProps: OwnProps) {
+export default function (ownProps: OwnProps) {
   return <Root {...buildRootProps(ownProps)} />;
 }
 
-export function buildRootProps(ownProps: OwnProps): RootProps {
-  const stateProps: StateProps = useSelector((state: State) => ({
-    page: state.ui.pages.root.page || 0,
-  }));
+export function buildRootProps(_: OwnProps): RootProps {
+  const page = useRecoilValue(mainCurrentPaginationPage);
 
   return {
-    ...ownProps,
-    ...stateProps,
+    page,
   };
 }

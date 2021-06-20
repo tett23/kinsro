@@ -1,17 +1,20 @@
 import React from 'react';
-import { VIndex as VIndexType } from 'models/VIndex';
-import { useSelector, useDispatch } from 'react-redux';
-import { State } from 'modules';
+import { VIndexItem as VIndexItemType } from 'models/VIndex';
 import VIndexItem from 'components/VIndexItem';
 import { Pager } from './Pager';
-import { rootUpdatePage } from 'modules/ui';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
+import {
+  mainCurrentPaginationPage,
+  mainVindex,
+  mainVindexQuery,
+} from 'modules';
 
 type OwnProps = {
   page: number;
 };
 
 type StateProps = {
-  vindex: VIndexType;
+  vindex: VIndexItemType[];
   maxPages: number;
 };
 
@@ -41,21 +44,21 @@ export default function VIndexDefault(ownProps: OwnProps) {
 }
 
 export function buildVIndexProps(ownProps: OwnProps): VIndexProps {
-  const stateProps: StateProps = useSelector((state: State) => {
-    const vindex = filterAndSort(state.domain.vindex, state.ui.filterText);
-    const page = ownProps.page;
-    const maxPages = Math.ceil(vindex.length / 100);
+  const vindex = useRecoilValue(mainVindex);
+  const filterText = useRecoilValue(mainVindexQuery);
+  const setPage = useSetRecoilState(mainCurrentPaginationPage);
+  const filtered = filterAndSort(vindex, filterText);
+  const page = ownProps.page;
+  const maxPages = Math.ceil(vindex.length / 100);
 
-    return {
-      vindex: vindex.slice(page * 100, (page + 1) * 100),
-      maxPages,
-    };
-  });
+  const stateProps: StateProps = {
+    vindex: filtered.slice(page * 100, (page + 1) * 100),
+    maxPages,
+  };
 
-  const dispatch = useDispatch();
   const dispatchProps: DispatchProps = {
     onClickPage: (page: number) => {
-      dispatch(rootUpdatePage(page));
+      setPage(page);
     },
   };
 
@@ -67,13 +70,16 @@ export function buildVIndexProps(ownProps: OwnProps): VIndexProps {
 }
 
 function filterAndSort(
-  vindex: VIndexType,
+  vindex: VIndexItemType[],
   filterText: string | null,
-): VIndexType {
+): VIndexItemType[] {
   return sortVIndex(filterVIndex(vindex, filterText));
 }
 
-function filterVIndex(vindex: VIndexType, query: string | null): VIndexType {
+function filterVIndex(
+  vindex: VIndexItemType[],
+  query: string | null,
+): VIndexItemType[] {
   if (query == null || query === '') {
     return vindex;
   }
@@ -91,7 +97,7 @@ function filterVIndex(vindex: VIndexType, query: string | null): VIndexType {
 const DateTimeRe = /^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})_.+/;
 const DateRe = /^(\d{4})(\d{2})(\d{2})/;
 
-function sortVIndex(vindex: VIndexType): VIndexType {
+function sortVIndex(vindex: VIndexItemType[]): VIndexItemType[] {
   return vindex.sort((a, b) => {
     const aTime = toTimestamp(a.filename, a.date);
     const bTime = toTimestamp(b.filename, b.date);
