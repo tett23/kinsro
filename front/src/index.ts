@@ -4,8 +4,12 @@ import './wasm_exec';
 import React from 'react';
 import { render } from 'react-dom';
 import App from './App';
-import { RawVIndexItem, VIndexItem } from 'models/vindex';
-import { VIndexItem } from 'components/VIndexItem';
+import {
+  RawVIndexItem,
+  sortVIndex,
+  toTimestamp,
+  VIndexItem,
+} from 'models/vindex';
 
 (async () => {
   const go = new Go();
@@ -24,17 +28,15 @@ import { VIndexItem } from 'components/VIndexItem';
 
   setTimeout(async () => {
     window.parseVIndex(bytes);
+
     const vindex = JSON.parse(window.vindex).map(
       (item: RawVIndexItem): VIndexItem => ({
         ...item,
         normalizedFilename: item.filename.normalize('NFKC').toLowerCase(),
+        timestamp: toTimestamp(item.filename, item.date),
       }),
     );
-
-    const sorted = vindex.sort((a: VIndexItem, b: VIndexItem) => {
-      const dateDiff = b.date - a.date;
-      return dateDiff == 0 ? a.filename.localeCompare(b.filename) : dateDiff;
-    });
+    const sorted = sortVIndex(vindex);
 
     const root = document.getElementById('root');
     render(React.createElement(App, { vindex: sorted }), root);
