@@ -19,12 +19,17 @@
   when: is_exist_pm2 is not success
 
 - name: 'Install mirakurun'
-  command: 'npm install -g mirakurun'
+  command: 'npm install mirakurun -g --unsafe-perm --production'
   become: yes
   when: is_exist_mirakurun is not success
 
 - name: 'Init mirakurun'
   command: 'mirakurun init'
+  become: yes
+  when: is_exist_mirakurun is not success
+
+- name: 'Restart mirakurun'
+  command: 'mirakurun restart'
   become: yes
   when: is_exist_mirakurun is not success
 
@@ -52,6 +57,11 @@
 - name: 'Clone chinachu'
   command: 'git clone --depth 1 git@github.com:Chinachu/Chinachu.git ~/chinachu'
   when: is_exist_chinachu_dir.stat.exists == false
+
+- name: 'npm install'
+  command: 'npm install'
+  args:
+    chdir: /home/pi/chinachu
 
 - name: 'Copy config.json'
   copy:
