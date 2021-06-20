@@ -1,3 +1,5 @@
+import { bitonicSortWithPadding } from 'utils/asyncSort';
+
 export type RawVIndexItem = {
   storage: string;
   date: number;
@@ -10,13 +12,13 @@ export type VIndexItem = RawVIndexItem & {
   timestamp: number;
 };
 
-export function sortVIndex(vindex: VIndexItem[]): VIndexItem[] {
-  return vindex.sort((a, b) => {
+export async function sortVIndex(vindex: VIndexItem[]): Promise<VIndexItem[]> {
+  return bitonicSortWithPadding(false, vindex, (a, b) => {
     if (a.timestamp !== b.timestamp) {
-      return b.timestamp - a.timestamp;
+      return a.timestamp > b.timestamp;
     }
 
-    return a.filename < b.filename ? -1 : 1;
+    return a.filename > b.filename;
   });
 }
 

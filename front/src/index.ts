@@ -12,7 +12,7 @@ import {
 } from 'models/vindex';
 
 (async () => {
-  const go = new Go();
+  const go = new global.Go();
   const buf = await fetch('/kinsro.wasm').then((resp) => resp.arrayBuffer());
   const result = await WebAssembly.instantiate(buf, go.importObject).catch(
     (err: Error) => err,
@@ -27,18 +27,36 @@ import {
   const bytes = new Uint8Array(await vindexResult.arrayBuffer());
 
   setTimeout(async () => {
-    window.parseVIndex(bytes);
+    console.time('a');
+    global.parseVIndex(bytes);
+    console.timeEnd('a');
 
-    const vindex = JSON.parse(window.vindex).map(
-      (item: RawVIndexItem): VIndexItem => ({
-        ...item,
-        normalizedFilename: item.filename.normalize('NFKC').toLowerCase(),
-        timestamp: toTimestamp(item.filename, item.date),
-      }),
-    );
-    const sorted = sortVIndex(vindex);
+    const vindex = build();
+
+    console.time('sort');
+    const sorted = await sortVIndex(vindex);
+    console.timeEnd('sort');
 
     const root = document.getElementById('root');
     render(React.createElement(App, { vindex: sorted }), root);
-  }, 1000);
+  }, 1);
 })();
+
+function build(): VIndexItem[] {
+  console.time('parseJSON');
+  const rawVIndex: RawVIndexItem[] = JSON.parse(global.vindex);
+  console.timeEnd('parseJSON');
+
+  console.time('b');
+  rawVIndex.forEach((item: RawVIndexItem): VIndexItem => {
+    (item as VIndexItem).normalizedFilename = item.filename
+      .normalize('NFKC')
+      .toLowerCase();
+    (item as VIndexItem).timestamp = toTimestamp(item.filename, item.date);
+
+    return item as VIndexItem;
+  });
+  console.timeEnd('b');
+
+  return rawVIndex as VIndexItem[];
+}

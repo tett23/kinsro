@@ -22,7 +22,9 @@
     "paths": {
       "models": ["./models"],
       "modules": ["./modules"],
-      "components": ["./components"]
+      "components": ["./components"],
+      "kvs": ["./kvs"],
+      "utils": ["./utils"]
     }
   },
   "include": ["./front/src/**/*", "./front/__tests__/**/*"],
