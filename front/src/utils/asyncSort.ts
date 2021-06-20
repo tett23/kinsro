@@ -8,7 +8,6 @@ const Threshold = 2 ** 12;
 function setPad<T>(arr: T[]): Array<T | PaddingItem> {
   const f = (v: number, c: number): number =>
     v === 0 ? c : f(Math.floor(v / 2), c + 1);
-  console.log(2 ** f(arr.length, 0));
 
   return Array.from({ length: 2 ** f(arr.length, 0) }).map((_, idx) =>
     arr[idx] == null ? PaddingItemInstance : arr[idx],
