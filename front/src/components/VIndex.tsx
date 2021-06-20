@@ -47,7 +47,7 @@ export function buildVIndexProps(ownProps: OwnProps): VIndexProps {
   const vindex = useRecoilValue(mainVindex);
   const filterText = useRecoilValue(mainVindexQuery);
   const setPage = useSetRecoilState(mainCurrentPaginationPage);
-  const filtered = filterAndSort(vindex, filterText);
+  const filtered = filterVIndex(vindex, filterText);
   const page = ownProps.page;
   const maxPages = Math.ceil(vindex.length / 100);
 
@@ -69,13 +69,6 @@ export function buildVIndexProps(ownProps: OwnProps): VIndexProps {
   };
 }
 
-function filterAndSort(
-  vindex: VIndexItemType[],
-  filterText: string | null,
-): VIndexItemType[] {
-  return sortVIndex(filterVIndex(vindex, filterText));
-}
-
 function filterVIndex(
   vindex: VIndexItemType[],
   query: string | null,
@@ -87,33 +80,6 @@ function filterVIndex(
   const normalizedQuery = query.normalize('NFKC').toLowerCase();
 
   return vindex.filter((item) => {
-    return item.filename
-      .normalize('NFKC')
-      .toLowerCase()
-      .includes(normalizedQuery);
+    return item.normalizedFilename.includes(normalizedQuery);
   });
-}
-
-const DateTimeRe = /^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})_.+/;
-const DateRe = /^(\d{4})(\d{2})(\d{2})/;
-
-function sortVIndex(vindex: VIndexItemType[]): VIndexItemType[] {
-  return vindex.sort((a, b) => {
-    const aTime = toTimestamp(a.filename, a.date);
-    const bTime = toTimestamp(b.filename, b.date);
-
-    if (aTime !== bTime) {
-      return bTime - aTime;
-    }
-
-    return a.filename < b.filename ? -1 : 1;
-  });
-}
-
-function toTimestamp(filename: string, date: number): number {
-  return Date.parse(
-    DateTimeRe.test(filename)
-      ? filename.replace(DateTimeRe, '$1-$2-$3T$4:$5:00')
-      : `${date}`.replace(DateRe, '$1-$2-$3'),
-  );
 }

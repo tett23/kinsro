@@ -1,11 +1,15 @@
-export type VIndexItem = {
+export type RawVIndexItem = {
   storage: string;
   date: number;
   filename: string;
   digest: string;
 };
 
-function sortVIndex(vindex: VIndexItem[]): VIndexItem[] {
+export type VIndexItem = RawVIndexItem & {
+  normalizedFilename: string;
+};
+
+export function sortVIndex(vindex: VIndexItem[]): VIndexItem[] {
   return vindex.sort((a, b) => {
     const aTime = toTimestamp(a.filename, a.date);
     const bTime = toTimestamp(b.filename, b.date);
@@ -27,29 +31,4 @@ function toTimestamp(filename: string, date: number): number {
       ? filename.replace(DateTimeRe, '$1-$2-$3T$4:$5:00')
       : `${date}`.replace(DateRe, '$1-$2-$3'),
   );
-}
-
-function filterVIndex(
-  vindex: VIndexItem[],
-  query: string | null,
-): VIndexItem[] {
-  if (query == null || query === '') {
-    return vindex;
-  }
-
-  const normalizedQuery = query.normalize('NFKC').toLowerCase();
-
-  return vindex.filter((item) => {
-    return item.filename
-      .normalize('NFKC')
-      .toLowerCase()
-      .includes(normalizedQuery);
-  });
-}
-
-export function filterAndSort(
-  vindex: VIndexItem[],
-  filterText: string | null,
-): VIndexItem[] {
-  return sortVIndex(filterVIndex(vindex, filterText));
 }
