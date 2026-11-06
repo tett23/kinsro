@@ -1,14 +1,9 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter, Switch, Route, Link } from 'react-router-dom';
-import {
-  RawVIndexItem,
-  sortVIndex,
-  toTimestamp,
-  VIndexItem,
-} from 'models/VIndex';
+import { BrowserRouter, Switch, Route } from 'react-router-dom';
+import { sortVIndex, VIndexItem } from 'models/VIndex';
 import Root from 'components/Root';
 import VideoContent from 'components/VideoContent';
-import { RecoilRoot, useSetRecoilState } from 'recoil';
+import { RecoilRoot, useRecoilState } from 'recoil';
 import { mainVindex } from 'modules';
 
 export type AppProps = {
@@ -24,9 +19,6 @@ export default function App(props: AppProps) {
     >
       <Effect />
       <BrowserRouter>
-        <h1>
-          <Link to="/">kinsro</Link>
-        </h1>
         <Switch>
           <Route exact path="/">
             <Root />
@@ -41,36 +33,17 @@ export default function App(props: AppProps) {
 }
 
 function Effect() {
-  const setVIndex = useSetRecoilState(mainVindex);
+  const [vindex, setVIndex] = useRecoilState(mainVindex);
+
   useEffect(() => {
     (async () => {
-      const vindex = buildVIndex();
       console.time('sort');
-      const sorted = await sortVIndex(vindex);
+      const sorted = await sortVIndex(vindex, 'desc');
       console.timeEnd('sort');
 
       setVIndex(sorted);
     })();
-  });
+  }, []);
 
   return null;
-}
-
-function buildVIndex(): VIndexItem[] {
-  console.time('parseJSON');
-  const rawVIndex: RawVIndexItem[] = JSON.parse(global.vindex);
-  console.timeEnd('parseJSON');
-
-  console.time('transform');
-  rawVIndex.forEach((item: RawVIndexItem): VIndexItem => {
-    (item as VIndexItem).normalizedFilename = item.filename
-      .normalize('NFKC')
-      .toLowerCase();
-    (item as VIndexItem).timestamp = toTimestamp(item.filename, item.date);
-
-    return item as VIndexItem;
-  });
-  console.timeEnd('transform');
-
-  return rawVIndex as VIndexItem[];
 }

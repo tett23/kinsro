@@ -8,7 +8,7 @@ test: $(TEST_DOTENV) $(SOURCES)
 test-v: $(TEST_DOTENV) $(SOURCES)
 	@GO_ENV=test go test ./src/... -timeout 1s -v
 
-build: $(SOURCES) 
+build: $(SOURCES)
 	@GOOS=linux GOARCH=amd64 go build -o build/kinsro_linux_amd64 src/main.go
 	@GOOS=linux GOARCH=arm go build -o build/kinsro_linux_arm32	src/main.go
 	@GOOS=linux GOARCH=arm64 go build -o build/kinsro_linux_arm64 src/main.go
@@ -17,6 +17,8 @@ build: $(SOURCES)
 	@GOOS=js GOARCH=wasm go build -o build/front/kinsro.wasm wasm_main/main.go
 
 build-front: $(FRONT_SOURCES)
+	@yarn run clean
+	@GOOS=js GOARCH=wasm go build -o build/front/kinsro.wasm wasm_main/main.go
 	@yarn run build
 
 deploy: build build-front

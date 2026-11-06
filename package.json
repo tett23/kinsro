@@ -7,7 +7,8 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "build": "parcel build ./front/src/index.ts -d ./build/front --public-url ./",
+    "clean": "rm -rf ./build/front",
+    "build": "parcel build ./front/src/index.html -d ./build/front --public-url ./",
     "watch": "parcel watch ./front/src/index.html -d ./front/public/"
   },
   "alias": {

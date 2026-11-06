@@ -4,7 +4,7 @@ const path = require('path');
 const app = express();
 const port = 4355;
 
-app.use(express.static('./public'));
+app.use(express.static('./front/public'));
 app.get('/contents/*', (_, res) => {
   res.sendFile(path.join(__dirname, 'public/index.html'));
 });

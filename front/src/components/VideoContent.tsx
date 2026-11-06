@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'react-router';
 import { basename } from 'path';
 import { VIndexItem } from 'models/vindex';
 import useKVS from 'kvs/hooks';
 import { useRecoilValue } from 'recoil';
 import { mainVindex } from 'modules';
+import { Link } from 'react-router-dom';
 
 type OwnProps = {};
 
@@ -26,28 +27,45 @@ export function VideoContent({
   volume,
   onVolumeChange,
 }: VideoContentProps) {
+  const [playing, setPlaying] = useState(false);
+
   if (vindexItem == null) {
     return null;
   }
 
   return (
-    <div>
-      <h2>{basename(vindexItem.filename)}</h2>
+    <figure id="player">
+      {!playing && (
+        <div className="caption">
+          <span className="back">
+            <Link to="/" role="button">
+              &lt;
+            </Link>
+          </span>
+          <h1>{basename(vindexItem.filename)}</h1>
+        </div>
+      )}
       <video
         controls
-        ref={(ref) => {
+        ref={(ref: HTMLVideoElement | null) => {
           if (ref != null) {
             ref.volume = volume;
           }
         }}
+        onPlay={() => {
+          setPlaying(true);
+        }}
+        onPause={() => {
+          setPlaying(false);
+        }}
         onVolumeChange={(e) =>
           onVolumeChange((e.target as HTMLVideoElement).volume)
         }
-        style={{ width: '100%', outline: 'none' }}
       >
         <source src={`/videos/${digest}.mp4`} />
+        {/* <source src="http://10.0.1.110/videos/9ac2a341946632330f872bcffca8eb88.mp4"></source> */}
       </video>
-    </div>
+    </figure>
   );
 }
 

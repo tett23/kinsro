@@ -11,9 +11,9 @@ main() {
 
 deploy_bin() {
   local SERVERS=$1
-  local IFS=$',' 
+  local IFS=$','
 
-  for ITEM in $SERVERS 
+  for ITEM in $SERVERS
   do
     local LOGIN="pi@$ITEM"
     ssh $LOGIN "mkdir -p ~/bin"
@@ -26,9 +26,9 @@ deploy_bin() {
 
 deploy_encode() {
   local SERVERS=$1
-  local IFS=$',' 
+  local IFS=$','
 
-  for ITEM in $SERVERS 
+  for ITEM in $SERVERS
   do
     local LOGIN="pi@$ITEM"
     ssh $LOGIN "mkdir -p ~/encode"
@@ -41,14 +41,14 @@ deploy_encode() {
 
 deploy_front() {
   local SERVERS=$1
-  local IFS=$',' 
+  local IFS=$','
 
-  for ITEM in $SERVERS 
+  for ITEM in $SERVERS
   do
     local LOGIN="pi@$ITEM"
     ssh $LOGIN "rm -rf /var/www/kinsro/*"
     scp build/front/* "$LOGIN:/var/www/kinsro"
-    scp assets/index.html "$LOGIN:/var/www/kinsro"
+    # scp assets/index.html "$LOGIN:/var/www/kinsro"
   done
 }
 

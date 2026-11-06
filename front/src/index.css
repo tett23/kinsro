@@ -1,0 +1,56 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+#player {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  background: black;
+  width: 100vw;
+  height: 100vh;
+}
+
+#player .caption {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  color: white;
+  height: 5rem;
+  overflow: hidden;
+  background: linear-gradient(black, transparent);
+  width: 100%;
+}
+
+#player .caption .back {
+  display: inline-block;
+}
+
+#player .caption .back a {
+  text-decoration: none;
+  color: white;
+  font-size: 2em;
+  padding: 2em;
+}
+
+#player .caption .back a:hover {
+  color: blue;
+}
+
+#player .caption h1 {
+  margin: 0;
+  padding: 0;
+  font-size: 2em;
+}
+
+#player video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  outline: none;
+}

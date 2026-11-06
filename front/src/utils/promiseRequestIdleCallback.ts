@@ -3,7 +3,9 @@ export function asyncJob<R>(
 ): (...args: any[]) => Promise<R> {
   return (...args: any[]) =>
     new Promise((resolve) => {
-      global.requestIdleCallback(() => {
+      (global.requestIdleCallback != null
+        ? global.requestIdleCallback
+        : global.requestAnimationFrame)(() => {
         resolve(f(...args));
       });
     });

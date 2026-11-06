@@ -12,8 +12,14 @@ export type VIndexItem = RawVIndexItem & {
   timestamp: number;
 };
 
-export async function sortVIndex(vindex: VIndexItem[]): Promise<VIndexItem[]> {
-  return bitonicSortWithPadding(false, vindex, (a, b) => {
+export type SortDirection = 'asc' | 'desc';
+
+export async function sortVIndex(
+  vindex: VIndexItem[],
+  direction: SortDirection,
+): Promise<VIndexItem[]> {
+  console.log(vindex.length);
+  return bitonicSortWithPadding(direction === 'asc', vindex, (a, b) => {
     if (a.timestamp !== b.timestamp) {
       return a.timestamp > b.timestamp;
     }
